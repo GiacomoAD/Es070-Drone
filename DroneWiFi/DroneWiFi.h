@@ -15,12 +15,15 @@
 #define PORT 25565
 #define SSID_GIA "Gio"
 #define PASS_GIA "nematodeo"
-
+#define SSID_GUS "Guslifer-Wifi"
+#define PASS_GUS "12345678"
 
 typedef struct droneParams
  {
   int M1, M2, M3, M4;
   float H, Battery;
+  int setPoint;
+  int time;
 
  };
 
@@ -29,27 +32,24 @@ class DroneWiFi
 {
 public:
  void initWiFi(char* ssid, char* pass, char* hostIP, int port);
- void sendData(WiFiClient conn, String message, char* len_c);
- String receiveData(WiFiClient conn);
+ void sendData(String message, char* len_c);
+ String receiveData();
  void setParams(droneParams prm);
+ void processComm(String msg);
  droneParams getParams();
 
 
 private:
 
-  WiFiMulti wifiCon;
-  WiFiClient serverCon;
+  WiFiMulti _wifiCon;
+  WiFiClient _serverCon;
 
-  droneParams params;
-
-  char*       len_marker = (char*)calloc(5, sizeof(char));
-  int         sent_counter    =   0;
-  char*       message = (char*)calloc(1024, sizeof(char));
-
+  droneParams _params;
 
   unsigned char connectWifi(char* ssid, char* pass);
   unsigned char connectServer(char* hostIP, int port);
-  void processComm(String msg);
+  char* _len_marker = (char*)calloc(5, sizeof(char));
+  
 
   
 };
