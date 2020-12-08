@@ -12,6 +12,8 @@ import curses
 
 global svDisp
 global svInput
+global blank
+blank = "                "
 
 cmd_q = PriorityQueue(maxsize = 5)
 
@@ -96,8 +98,10 @@ def threadedHandleDrone(conn):
     global recv_counter
     global svDisp
     global svInput
+    global blank
     
     command = "NULL"
+    
     
     with conn:
         while(command != "#G"):
@@ -120,7 +124,14 @@ def threadedHandleDrone(conn):
         svDisp.addstr(8,0,'MENSAGEM RECEBIDA --->')
         svDisp.addstr(8,24, str(msg))
         svDisp.refresh()
+
+        svInput.addstr(3,0,"JOYSTICK MODE DISABLED", curses.color_pair(3)|curses.A_BOLD)
+        svInput.addstr(4,0,"\t´#J´ = ENABLE JOYSTICK", curses.color_pair(1))
+        svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = INDIVIDUALLY SET MOTORS VELOCITIES", curses.color_pair(1))
+        svInput.clrtobot()
+        svInput.move(1,15)
         svInput.refresh()
+
 
         while(droneOnline == 1):
             
@@ -136,18 +147,27 @@ def threadedHandleDrone(conn):
             msg = receive(conn).decode(encoding="utf-8")
             print("RECEBIDO --->\t" + msg)
             svDisp.addstr(8,0,'MENSAGEM RECEBIDA --->')
-            svDisp.addstr(8,24, str(msg))
+            svDisp.addstr(8,24, str(msg) + blank)
             svDisp.refresh()
+            svInput.refresh()
             recv_counter += 1
             
             if(recv_counter == 5):
                 command = cmd_q.get()[1]
+                
+                # if(command == '#J'):
+                #     curses.cbreak()
+                    
+                # if(command == 's'):
+                #     curses.nocbreak()
+                
                 print("ENVIANDO --->\t" + command)
                 svDisp.addstr(7,0,'ENVIANDO COMANDO --->')
                 #svDisp.move(7,23)
-                #vDisp.clrtoel()
-                svDisp.addstr(7,23, command)
+                #svDisp.clrtoel()
+                svDisp.addstr(7,23, command + blank)
                 svDisp.refresh()
+                svInput.refresh()
                 sendD(conn, command)
                 recv_counter = 0
 
@@ -160,7 +180,7 @@ def main(stdscr):
     global droneOnline
     global svDisp
     global svInput
-
+    global blank
     
     #HOST = '192.168.43...' 
     HOST = '192.168.43.182'
@@ -168,6 +188,7 @@ def main(stdscr):
     
     PORT = 25565        # Port to listen on (non-privileged ports are > 1023)
         
+    joystick_enabled = 0
 
 ##%% SERVER CREATION AND CONNECTION SECTION
 
@@ -180,7 +201,13 @@ def main(stdscr):
 
         
         
-        svInput = curses.newwin(4,120,21,0)
+        svInput = curses.newwin(8,120,21,0)
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_WHITE)
+
         curses.echo()
         svInput.keypad(True)
         
@@ -237,13 +264,50 @@ def main(stdscr):
                     
                     while(droneOnline == 1):
                         
-                        command = svInput.getstr().decode(encoding="utf-8")
+                        if(joystick_enabled == 0):
+                            command = svInput.getstr().decode(encoding="utf-8")
+                            
+                        else:
+                            command = svInput.getkey()
+                            
                         cmd_q.put((1, command))
                         
-                        svDisp.addstr(10,0, "ULTIMO COMANDO INSERIDO --->" + command)
+                        if(command == '#J'):
+                            joystick_enabled = 1
+                            curses.cbreak()
+                            svInput.move(3,0)
+                            svInput.clrtobot()
+                            svInput.addstr(3,0,"JOYSTICK MODE ENABLED", curses.color_pair(1)|curses.A_BOLD)
+                            svInput.addstr(4,0,"\t´8´ = -PITCH RATE\t ´4´ = -ROLL RATE\t ´-´ = -THROTTLE", curses.color_pair(1))
+                            svInput.addstr(5,0,"\t´2´ = +PITCH RATE\t ´6´ = +ROLL RATE\t ´+´ = +THROTTLE", curses.color_pair(1))
+                            svInput.addstr(6,0,"\t´5´ = SET ROLL AND PITCH TO 0", curses.color_pair(2))
+                            svInput.addstr(7,0,"\t´s´ = DISABLE JOYSTICK MODE", curses.color_pair(3))
+                            svInput.addstr(3,99, "8", curses.color_pair(1)|curses.A_BOLD)
+                            svInput.addstr(4,99, "|", curses.color_pair(1)|curses.A_BOLD)
+                            svInput.addstr(5,95,  "4---5---6", curses.color_pair(1)|curses.A_BOLD)
+                            svInput.addstr(6,99, "|", curses.color_pair(1)|curses.A_BOLD)
+                            svInput.addstr(7,99, "2", curses.color_pair(1)|curses.A_BOLD)
+                            
+                            
+                            
+                            
+                            
+                        if(command == 's'):
+                            joystick_enabled = 0
+                            svInput.move(3,0)
+                            svInput.clrtobot()
+                            svInput.addstr(3,0,"JOYSTICK MODE DISABLED", curses.color_pair(3)|curses.A_BOLD)
+                            svInput.addstr(4,0,"\t´#J´ = ENABLE JOYSTICK", curses.color_pair(1))
+                            svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = INDIVIDUALLY SET MOTORS VELOCITIES", curses.color_pair(1))
+                            svInput.refresh()
+                            curses.nocbreak()
+                            
+                        
+                        svDisp.addstr(10,0, "ULTIMO COMANDO INSERIDO --->" + command + blank)
                         svDisp.refresh()
                         
                         svInput.move(1,15)
+                        svInput.clrtoeol()
                         svInput.refresh()
                         
                         
