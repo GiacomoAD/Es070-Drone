@@ -15,7 +15,7 @@ void DroneWiFi::initWiFi(char* ssid, char* pass, char* hostIP, int port)      //
   Serial.println("Sending Authentication...");
   receiveData();
   delay(100);
-  sendData( "OK\0", _len_marker);
+  sendData( "OK\0");
   Serial.println("\nAuthentication successful!");
 
 }
@@ -32,14 +32,14 @@ void DroneWiFi::initWiFi(char* ssid, char* pass, char* hostIP, int port)      //
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
-void DroneWiFi::sendData(String message, char* len_c)       // aceita um registro como parâmetro
+void DroneWiFi::sendData(String message)       // aceita um registro como parâmetro
 {
   int   len = int(message.length());
   unsigned int i = 0;
 
-  sprintf(len_c, "%05d", len); // 5 digits
+  sprintf(_len_marker, "%05d", len); // 5 digits
 
-  String envio = len_c + message;
+  String envio = _len_marker + message;
   _serverCon.print(envio);
   return;
 
@@ -144,50 +144,100 @@ void DroneWiFi::processComm(String msg)
   int i = 0;
   char ch;
   
-  while(i < len){
-    ch = msg[i];
-    switch(ch){
-      case '#':
-        i++;
-        break;
-      case 'K':
-        i++;
-        break;
-      case 'S':
-        i++;
-        break;
-      //#ST1000;1000;1000;1000
-      case 'T':
-        if(len == 22){
-          _params.M1 = (msg[3]-48)*1000 + (msg[4]-48)*100 + (msg[5]-48)*10 + (msg[6]-48);
-          _params.M2 = (msg[8]-48)*1000 + (msg[9]-48)*100 + (msg[10]-48)*10 + (msg[11]-48);
-          _params.M3 = (msg[13]-48)*1000 + (msg[14]-48)*100 + (msg[15]-48)*10 + (msg[16]-48);
-          _params.M4 = (msg[18]-48)*1000 + (msg[19]-48)*100 + (msg[20]-48)*10 + (msg[21]-48);
-        }
-        i = len;
-        break;
-      
-      case 'G':
-        Serial.println("Main Loop Started!");
-        sendData("Ready to fly!\0", _len_marker);
-        i++;
-        break;
+  if(joystick_enabled){
+    switch (msg[0]){
 
-      case 'V':
-        if(len == 7){
-          _params.setPoint = (msg[3]-48)*10 + (msg[4]-48));
-          _params.time = (msg[6]-48);
-        }
+    case 's':
+      joystick_enabled = 0;
+      Serial.println("Joystick Disabled.");
+      break;
+    
+    case '5':
+      _joystickSetpoints.roll   = 0;
+      _joystickSetpoints.pitch  = 0;  
+      break;
 
-        i = len;
-        break;
+    case '8':
+      _joystickSetpoints.pitch  -= VEL_INC;
+     
+      break;
+    
+    case '2':
+      _joystickSetpoints.pitch  += VEL_INC;
+      break;
 
-      default:
-        Serial.println("Unindentified Command.");
-        i = len;
+    case '6':
+      _joystickSetpoints.roll   += VEL_INC;
+      break;
+
+    case '4':
+      _joystickSetpoints.roll   -= VEL_INC;
+      break;
+
+    case '#':
+      break;
+
+    default:
+      Serial.println("Unindentified Command.");
+      break;
+    }
+  }
+
+  else{
+    while(i < len){
+      ch = msg[i];
+      switch(ch){
+        case '#':
+          i++;
+          break;
+        case 'K':
+          i++;
+          break;
+        case 'S':
+          i++;
+          break;
+        //#ST1000;1000;1000;1000
+        case 'T':
+          if(len == 22){
+            _params.M1 = (msg[3]-48)*1000 + (msg[4]-48)*100 + (msg[5]-48)*10 + (msg[6]-48);
+            _params.M2 = (msg[8]-48)*1000 + (msg[9]-48)*100 + (msg[10]-48)*10 + (msg[11]-48);
+            _params.M3 = (msg[13]-48)*1000 + (msg[14]-48)*100 + (msg[15]-48)*10 + (msg[16]-48);
+            _params.M4 = (msg[18]-48)*1000 + (msg[19]-48)*100 + (msg[20]-48)*10 + (msg[21]-48);
+          }
+          i = len;
+          break;
+        
+        case 'G':
+          Serial.println("Main Loop Started!");
+          sendData("Ready to fly!\0");
+          i++;
+          break;
+
+        case 'V':
+          if(len == 7){
+            _params.setPoint = (msg[3]-48)*10 + (msg[4]-48);
+            _params.time = (msg[6]-48);
+          }
+
+          i = len;
+          break;
+
+        case 'J':
+          joystick_enabled = 1;
+          i++;
+          Serial.println("Joystick Enabled.");
+          break;
+
+        default:
+          Serial.println("Unindentified Command.");
+          i = len;
+      }
     }
   }
 
   return;
+}
 
+rotVel DroneWiFi::getVel(){
+  return _joystickSetpoints;
 }

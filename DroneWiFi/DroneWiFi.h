@@ -18,6 +18,8 @@
 #define SSID_GUS "Guslifer-Wifi"
 #define PASS_GUS "12345678"
 
+#define VEL_INC 5
+
 typedef struct droneParams
  {
   int M1, M2, M3, M4;
@@ -27,17 +29,24 @@ typedef struct droneParams
 
  };
 
+typedef struct rotVel
+ {
+  int roll = 0;
+  int pitch = 0;
+  int yaw = 0;
+
+ };
 
 class DroneWiFi
 {
 public:
  void initWiFi(char* ssid, char* pass, char* hostIP, int port);
- void sendData(String message, char* len_c);
+ void sendData(String message);
  String receiveData();
  void setParams(droneParams prm);
  void processComm(String msg);
  droneParams getParams();
-
+ rotVel getVel();
 
 private:
 
@@ -45,11 +54,13 @@ private:
   WiFiClient _serverCon;
 
   droneParams _params;
+  rotVel  _joystickSetpoints;
 
   unsigned char connectWifi(char* ssid, char* pass);
   unsigned char connectServer(char* hostIP, int port);
   char* _len_marker = (char*)calloc(5, sizeof(char));
   
+  unsigned char joystick_enabled = 0;
 
   
 };
