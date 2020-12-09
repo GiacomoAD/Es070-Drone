@@ -47,6 +47,8 @@ public:
  void processComm(String msg);
  droneParams getParams();
  rotVel getVel();
+ void enable_debug();
+ void disable_debug();
 
 private:
 
@@ -61,7 +63,7 @@ private:
   char* _len_marker = (char*)calloc(5, sizeof(char));
   
   unsigned char joystick_enabled = 0;
-
+  unsigned char debugging_enabled = 1;
   
 };
  

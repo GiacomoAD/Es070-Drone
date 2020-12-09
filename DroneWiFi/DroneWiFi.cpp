@@ -11,12 +11,15 @@ void DroneWiFi::initWiFi(char* ssid, char* pass, char* hostIP, int port)      //
     flag = connectServer(hostIP, port);
   }
   
-  Serial.println("Connected to Server!");
-  Serial.println("Sending Authentication...");
+  if(debugging_enabled){
+    Serial.println("Connected to Server!");
+    Serial.println("Sending Authentication...");
+  }
   receiveData();
   delay(100);
   sendData( "OK\0");
-  Serial.println("\nAuthentication successful!");
+  if(debugging_enabled)
+    Serial.println("\nAuthentication successful!");
 
 }
 
@@ -109,16 +112,19 @@ unsigned char DroneWiFi::connectWifi(char* ssid, char* pass)
 {
   _wifiCon.addAP(ssid, pass); // Network name and password
 
-  Serial.println();
-  Serial.println();
-  Serial.print("Waiting for WiFi... ");
-  
+  if(debugging_enabled){
+    Serial.println();
+    Serial.println();
+    Serial.print("Waiting for WiFi... ");
+  }
   while (_wifiCon.run() != WL_CONNECTED) {
-    Serial.print(".");
+    if(debugging_enabled)
+      Serial.print(".");
     delay(500);
   }
 
-  Serial.println("\nConnected to WiFi!");
+  if(debugging_enabled)
+    Serial.println("\nConnected to WiFi!");
 
   return 1;
 
@@ -127,8 +133,10 @@ unsigned char DroneWiFi::connectWifi(char* ssid, char* pass)
 unsigned char DroneWiFi::connectServer(char* hostIP, int port)
 {
   if (!_serverCon.connect(hostIP, port)) {
-    Serial.println("Connection failed.");
-    Serial.println("Waiting 5 seconds before retrying...");
+    if(debugging_enabled){
+      Serial.println("Connection failed.");
+      Serial.println("Waiting 5 seconds before retrying...");
+    }
     delay(5000);
     return 0;
   }
@@ -149,7 +157,8 @@ void DroneWiFi::processComm(String msg)
 
     case 's':
       joystick_enabled = 0;
-      Serial.println("Joystick Disabled.");
+      if(debugging_enabled)
+        Serial.println("Joystick Disabled.");
       break;
     
     case '5':
@@ -159,28 +168,39 @@ void DroneWiFi::processComm(String msg)
 
     case '8':
       _joystickSetpoints.pitch  -= VEL_INC;
+      if(_joystickSetpoints.pitch <= -10)
+        _joystickSetpoints.pitch = -10;
      
       break;
     
     case '2':
       _joystickSetpoints.pitch  += VEL_INC;
+      if(_joystickSetpoints.pitch >= 10)
+        _joystickSetpoints.pitch = 10;
       break;
 
     case '6':
       _joystickSetpoints.roll   += VEL_INC;
+      if(_joystickSetpoints.roll >= 10)
+        _joystickSetpoints.roll = 10;
+
       break;
 
     case '4':
       _joystickSetpoints.roll   -= VEL_INC;
+      if(_joystickSetpoints.roll <= -10)
+        _joystickSetpoints.roll = -10;
       break;
 
     case '#':
       break;
 
     default:
-      Serial.println("Unindentified Command.");
+      if(debugging_enabled)
+        Serial.println("Unindentified Command.");
       break;
     }
+    
   }
 
   else{
@@ -208,7 +228,9 @@ void DroneWiFi::processComm(String msg)
           break;
         
         case 'G':
-          Serial.println("Main Loop Started!");
+
+          if(debugging_enabled)
+            Serial.println("Main Loop Started!");
           sendData("Ready to fly!\0");
           i++;
           break;
@@ -225,11 +247,13 @@ void DroneWiFi::processComm(String msg)
         case 'J':
           joystick_enabled = 1;
           i++;
-          Serial.println("Joystick Enabled.");
+          if(debugging_enabled)
+            Serial.println("Joystick Enabled.");
           break;
 
         default:
-          Serial.println("Unindentified Command.");
+          if(debugging_enabled)
+            Serial.println("Unindentified Command.");
           i = len;
       }
     }
@@ -240,4 +264,12 @@ void DroneWiFi::processComm(String msg)
 
 rotVel DroneWiFi::getVel(){
   return _joystickSetpoints;
+}
+
+void DroneWiFi::enable_debug(){
+  debugging_enabled = 1;
+}
+
+void DroneWiFi::disable_debug(){
+  debugging_enabled = 0;
 }
