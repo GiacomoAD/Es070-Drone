@@ -27,13 +27,16 @@ unsigned char IMU::findMPU()
  
   if(_processedData == 0)
   {
-    Serial.print("Dispositivo encontrado no endereço: 0x");
-    Serial.println(MPU_ADDR, HEX);
+    if(debbuging_enabled){
+      Serial.print("Dispositivo encontrado no endereço: 0x");
+      Serial.println(MPU_ADDR, HEX);
+    }
     ucFound = 1;
   }
   else
   {
-    Serial.println("Dispositivo não encontrado!");
+    if(debbuging_enabled)
+      Serial.println("Dispositivo não encontrado!");
     ucFound = 0;
   }
 
@@ -53,21 +56,25 @@ unsigned char IMU::checkMPU()
    
   if(_processedData == 104) 
   {
-    Serial.println("MPU6050 Dispositivo respondeu OK! (104)");
+    if(debbuging_enabled)
+      Serial.println("MPU6050 Dispositivo respondeu OK! (104)");
  
     _processedData = readRegMPU(PWR_MGMT_1); // Register 107 – Power Management 1-0x6B
  
     if(_processedData == 64){
-      Serial.println("MPU6050 em modo SLEEP! (64)");
+      if(debbuging_enabled)
+        Serial.println("MPU6050 em modo SLEEP! (64)");
       ucCheck = 2;
     }
     else{
-      Serial.println("MPU6050 em modo ACTIVE!");
+      if(debbuging_enabled)
+        Serial.println("MPU6050 em modo ACTIVE!");
       ucCheck = 1;
     }
   }
   else {
-    Serial.println("Verifique dispositivo - MPU6050 NÃO disponível!");
+    if(debbuging_enabled)
+      Serial.println("Verifique dispositivo - MPU6050 NÃO disponível!");
   }
 
   return ucCheck;
@@ -207,7 +214,8 @@ void IMU::processAngles(processedMpu dados){
 
   filterMPUData();
 
-  Serial.printf("Gyro:%f\tAccl:%f\tCompl:%f\n",_ang.GyRoll, _ang.AclRoll, _procAng.Roll);
+  if(debbuging_enabled)
+    Serial.printf("Gyro:%f\tAccl:%f\tCompl:%f\n",_ang.GyRoll, _ang.AclRoll, _procAng.Roll);
 
 /*
   Serial.printf("ANGULOS GIROSCOPIO:\nROLL:%f\tPITCH:%f\t%YAW:%f\n",_ang.GyRoll, _ang.GyPitch, _ang.GyYaw);
@@ -239,6 +247,15 @@ processedMpu IMU::getData(){
 angles IMU::getRawAngles(){
   return _ang;
 }
- processedAngles IMU::getRotations(){
-   return _procAng;
- }
+
+processedAngles IMU::getRotations(){
+  return _procAng;
+}
+
+void IMU::enableDebug(){
+  debbuging_enabled = 1;
+}
+
+void IMU::disableDebug(){
+  debbuging_enabled = 0;
+}

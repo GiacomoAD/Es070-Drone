@@ -67,6 +67,8 @@ public:
  void CalibrateGyro(float X, float Y, float Z);
  void CalibrateAcl(float X, float Y);
  void update();
+ void enableDebug();
+ void disableDebug();
  
 private:
   void writeRegMPU(int reg, int val);
@@ -99,7 +101,7 @@ private:
   processedAngles _procAng;
    
   unsigned char led_state = 0;
-  
+  unsigned char debbuging_enabled = 1;
 };
  
 #endif
