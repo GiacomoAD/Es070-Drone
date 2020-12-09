@@ -26,6 +26,7 @@
 #define CF_AC          0.05
 
 #define RAD_2_DEG      57.2958 
+#define DEG_2_RAD      0.01745
 
 typedef struct mpu
  {

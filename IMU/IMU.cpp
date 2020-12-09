@@ -175,23 +175,28 @@ processedMpu IMU::processMPUData(){
 
 void IMU::processAngles(processedMpu dados){
 
-  unsigned long aux = millis();
-  float dt = (float)(aux - _lastTimestamp)/1000;
+  unsigned long aux = micros();
+  float dt = (float)(aux - _lastTimestamp)/1000000;
   float x2, y2, z2, result;
   _lastTimestamp = aux;
 
-  Serial.println(dt);
+  //Serial.println(dt);
 
+  _ang.GyPitch = _procAng.Pitch;
+  _ang.GyRoll  = _procAng.Roll;
+  _ang.GyYaw   = _procAng.Yaw;
+  
   _ang.GyPitch  += _processedData.GyX*dt; //MPU eixo X
   _ang.GyRoll   += _processedData.GyY*dt; //MPU eixo Y
   _ang.GyYaw    += _processedData.GyZ*dt; //MPU eixo Z
+
+  
 /*
   Serial.printf("Acelerometer INPUT:\t %f\t%f\t%f\n",_processedData.AcX, _processedData.AcY, _processedData.AcZ);
 */
   x2 = _processedData.AcX*_processedData.AcX;
   y2 = _processedData.AcY*_processedData.AcY;
   z2 = _processedData.AcZ*_processedData.AcZ;
-
 
   //Pitch
   result = sqrt(x2+z2);
