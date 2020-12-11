@@ -298,7 +298,8 @@ def main(stdscr):
                             svInput.clrtobot()
                             svInput.addstr(3,0,"JOYSTICK MODE DISABLED", curses.color_pair(3)|curses.A_BOLD)
                             svInput.addstr(4,0,"\t´#J´ = ENABLE JOYSTICK", curses.color_pair(1))
-                            svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = INDIVIDUALLY SET MOTORS VELOCITIES", curses.color_pair(1))
+                            svInput.addstr(6,0,"\t´#STxxxx;xxxx;xxxx;xxxx´ = INDIVIDUALLY SET MOTORS VELOCITIES", curses.color_pair(1))
+                            svInput.addstr(7,0,"\t´#R´ = RESET ALL MOTORS TO ZERO SPEED", curses.color_pair(2))
                             svInput.refresh()
                             curses.nocbreak()
                             
