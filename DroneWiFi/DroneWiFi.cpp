@@ -218,12 +218,14 @@ void DroneWiFi::processComm(String msg)
           break;
         //#ST1000;1000;1000;1000
         case 'T':
-          if(len == 22){
-            _params.M1 = (msg[3]-48)*1000 + (msg[4]-48)*100 + (msg[5]-48)*10 + (msg[6]-48);
-            _params.M2 = (msg[8]-48)*1000 + (msg[9]-48)*100 + (msg[10]-48)*10 + (msg[11]-48);
-            _params.M3 = (msg[13]-48)*1000 + (msg[14]-48)*100 + (msg[15]-48)*10 + (msg[16]-48);
-            _params.M4 = (msg[18]-48)*1000 + (msg[19]-48)*100 + (msg[20]-48)*10 + (msg[21]-48);
-          }
+
+          if(msg[i-1] == 'S')
+            if(len == 22){
+              _params.M1 = (msg[3]-48)*1000 + (msg[4]-48)*100 + (msg[5]-48)*10 + (msg[6]-48);
+              _params.M2 = (msg[8]-48)*1000 + (msg[9]-48)*100 + (msg[10]-48)*10 + (msg[11]-48);
+              _params.M3 = (msg[13]-48)*1000 + (msg[14]-48)*100 + (msg[15]-48)*10 + (msg[16]-48);
+              _params.M4 = (msg[18]-48)*1000 + (msg[19]-48)*100 + (msg[20]-48)*10 + (msg[21]-48);
+            }
           i = len;
           break;
         
@@ -240,6 +242,16 @@ void DroneWiFi::processComm(String msg)
             _params.setPoint = (msg[3]-48)*10 + (msg[4]-48);
             _params.time = (msg[6]-48);
           }
+
+          i = len;
+          break;
+
+        case 'R':
+
+          _params.M1 = 1200;
+          _params.M2 = 1200;
+          _params.M3 = 1200;
+          _params.M4 = 1200;
 
           i = len;
           break;
