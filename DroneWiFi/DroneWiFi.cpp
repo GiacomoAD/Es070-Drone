@@ -1,6 +1,27 @@
+/* ***************************************************************** */
+/* File name:        DroneWiFi.cpp                                   */
+/* File description: WiFi socket connection handling implementation  */
+/* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
+/* Creation date:    18nov2020                                       */
+/* Revision date:    14dec2020                                       */
+/* ***************************************************************** */
+
 #include "DroneWiFi.h"
 
-void DroneWiFi::initWiFi(char* ssid, char* pass, char* hostIP, int port)      //aceita um registro e um valor como parâmetro
+
+/* ************************************************************************************ */
+/* Method's name:          initWiFi                                                     */ 
+/* Description:            WiFi initialization. Connects to a network and server.       */
+/*                         Authenticates.                                               */
+/*                                                                                      */
+/* Entry parameters:       char* ssid -> WiFi network ssid                              */
+/*                         char* pass -> WiFi network password                          */
+/*                         char* hostIP -> Server connection IP                         */
+/*                         int port    -> Server Connection port                        */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
+void DroneWiFi::initWiFi(char* ssid, char* pass, char* hostIP, int port)
 {
 
   connectWifi(ssid, pass);
@@ -54,7 +75,7 @@ void DroneWiFi::sendData(String message)       // aceita um registro como parâm
 /* Description:            WiFi comm. method to receive data. Will read the first 5     */
 /*                         incoming bytes and use it to read the incoming stream        */
 /*                                                                                      */
-/* Entry parameters:       WiFiClient _serverCon -> Socket object that represents the         */
+/* Entry parameters:       WiFiClient _serverCon -> Socket object that represents the   */
 /*                                            connection                                */
 /*                                                                                      */
 /* Return parameters:      String -> Message read from the connection                   */
@@ -94,6 +115,14 @@ String DroneWiFi::receiveData()
   
 }
 
+/* ************************************************************************************ */
+/* Method's name:          setParams                                                    */ 
+/* Description:            Set internal droneParams variable                            */
+/*                                                                                      */
+/* Entry parameters:       droneParams prm -> struct to be set                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void DroneWiFi::setParams(droneParams prm)
 {
 
@@ -103,6 +132,15 @@ void DroneWiFi::setParams(droneParams prm)
 
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getParams                                                    */ 
+/* Description:            Return the internal drone parameters struct                  */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      droneParams -> internal parameters struct                    */
+/* ************************************************************************************ */
 droneParams DroneWiFi::getParams()
 {
  return _params;
@@ -130,6 +168,16 @@ unsigned char DroneWiFi::connectWifi(char* ssid, char* pass)
 
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          connectServer                                                */ 
+/* Description:            Attempts server connection through WiFi network              */
+/*                                                                                      */
+/* Entry parameters:       char* hostIP -> Server connection IP                         */
+/*                         int port    -> Server Connection port                        */
+/*                                                                                      */
+/* Return parameters:      unsigned char -> 0 == failed to connect / 1 == success       */
+/* ************************************************************************************ */
 unsigned char DroneWiFi::connectServer(char* hostIP, int port)
 {
   if (!_serverCon.connect(hostIP, port)) {
@@ -146,6 +194,14 @@ unsigned char DroneWiFi::connectServer(char* hostIP, int port)
   }
 }
 
+/* ************************************************************************************ */
+/* Method's name:          processComm                                                  */ 
+/* Description:            State machine to process server communication commands       */
+/*                                                                                      */
+/* Entry parameters:       String msg -> server command to be handled                   */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void DroneWiFi::processComm(String msg)
 {
   int len = (int)msg.length();
@@ -190,6 +246,18 @@ void DroneWiFi::processComm(String msg)
       _joystickSetpoints.roll   -= VEL_INC;
       if(_joystickSetpoints.roll <= -10)
         _joystickSetpoints.roll = -10;
+      break;
+
+    case '+':
+      _joystickSetpoints.throttle   += VEL_INC;
+      if(_joystickSetpoints.throttle >= 50)
+        _joystickSetpoints.throttle = 50;
+      break;
+
+    case '-':
+      _joystickSetpoints.throttle   -= VEL_INC;
+      if(_joystickSetpoints.throttle <= 0)
+        _joystickSetpoints.throttle = 0;
       break;
 
     case '#':
@@ -274,14 +342,38 @@ void DroneWiFi::processComm(String msg)
   return;
 }
 
+/* ************************************************************************************ */
+/* Method's name:          getVel                                                       */ 
+/* Description:            Return the internal joystick setpoints struct                */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      rotVel -> internal joystick setpoints struct                 */
+/* ************************************************************************************ */
 rotVel DroneWiFi::getVel(){
   return _joystickSetpoints;
 }
 
+/* ************************************************************************************ */
+/* Method's name:          enable_debug                                                 */ 
+/* Description:            Enables Serial Comm Printing                                 */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void DroneWiFi::enable_debug(){
   debugging_enabled = 1;
 }
 
+/* ************************************************************************************ */
+/* Method's name:          disable_debug                                                */ 
+/* Description:            Disables Serial Comm Printing                                */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void DroneWiFi::disable_debug(){
   debugging_enabled = 0;
 }
