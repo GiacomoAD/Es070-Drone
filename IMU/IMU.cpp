@@ -1,5 +1,23 @@
+/* ***************************************************************** */
+/* File name:        IMU.cpp                                         */
+/* File description: MPU-6050 interface implementation file          */
+/* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
+/* Creation date:    18nov2020                                       */
+/* Revision date:    14dec2020                                       */
+/* ***************************************************************** */
+
 #include "IMU.h"
 
+
+/* ************************************************************************************ */
+/* Method's name:          writeRegMPU                                                  */ 
+/* Description:            Writes to a MPU-6005 register through I2C bus                */
+/*                                                                                      */
+/* Entry parameters:       int reg -> Register to write to                              */
+/*                         int val -> Value to write                                    */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::writeRegMPU(int reg, int val)      //aceita um registro e um valor como parâmetro
 {
   Wire.beginTransmission(MPU_ADDR);     // inicia comunicação com endereço do MPU6050
@@ -8,6 +26,14 @@ void IMU::writeRegMPU(int reg, int val)      //aceita um registro e um valor com
   Wire.endTransmission(true);           // termina a transmissão
 }
 
+/* ************************************************************************************ */
+/* Method's name:          readRegMPU                                                   */ 
+/* Description:            Reads from a MPU-6005 register through I2C bus               */
+/*                                                                                      */
+/* Entry parameters:       unsigned char reg -> Register to read from                   */
+/*                                                                                      */
+/* Return parameters:      unsigned char -> value that was read                         */
+/* ************************************************************************************ */
 unsigned char IMU::readRegMPU(unsigned char reg)        // aceita um registro como parâmetro
 {
   unsigned char _processedData;
@@ -19,6 +45,14 @@ unsigned char IMU::readRegMPU(unsigned char reg)        // aceita um registro co
   return _processedData;                          //retorna '_processedData'
 }
 
+/* ************************************************************************************ */
+/* Method's name:          findMPU                                                      */ 
+/* Description:            Check for MPU-6050 address on I2C bus                        */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      unsigned char -> 0 == not found / 1 == found                 */
+/* ************************************************************************************ */
 unsigned char IMU::findMPU()
 {
   Wire.beginTransmission(MPU_ADDR);
@@ -43,6 +77,15 @@ unsigned char IMU::findMPU()
   return ucFound;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          checkMPU                                                     */ 
+/* Description:            Check MPU-6050 status through I2C bus                        */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      unsigned char -> 0 = not available / 1 = Active / 2 = Sleep  */
+/* ************************************************************************************ */
 unsigned char IMU::checkMPU()
 {
 
@@ -81,6 +124,14 @@ unsigned char IMU::checkMPU()
 
 }
 
+/* ************************************************************************************ */
+/* Method's name:          initMPU                                                      */ 
+/* Description:            Initialize I2C bus and MPU-6050                              */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::initMPU()
 {
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -90,21 +141,53 @@ void IMU::initMPU()
   checkMPU();
 }
 
+/* ************************************************************************************ */
+/* Method's name:          setSleepOff                                                  */ 
+/* Description:            Writes to specific register on MPU-6050 to set Active Mode   */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::setSleepOff()
 {
   writeRegMPU(PWR_MGMT_1, 0); // escreve 0 no registro de gerenciamento de energia(0x68), colocando o sensor em o modo ACTIVE
 }
 
+/* ************************************************************************************ */
+/* Method's name:          setGyroScale                                                 */ 
+/* Description:            Set gyroscope scale to +- 250°/s                             */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::setGyroScale()
 {
   writeRegMPU(GYRO_CONFIG, 0);
 }
 
+/* ************************************************************************************ */
+/* Method's name:          setAccelScale                                                */ 
+/* Description:            Set accelerometer scale to +- 2g                             */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::setAccelScale()
 {
   writeRegMPU(ACCEL_CONFIG, 0);
 }
 
+/* ************************************************************************************ */
+/* Method's name:          readRawMPU                                                   */ 
+/* Description:            Reads all sensor registers from MPU-6050 through I2C bus     */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      mpu -> Struct containing raw read values                     */
+/* ************************************************************************************ */
 mpu IMU::readRawMPU()
 {  
 
@@ -148,21 +231,59 @@ mpu IMU::readRawMPU()
   return _rawData;                                        
 }
 
+/* ************************************************************************************ */
+/* Method's name:          CalibrateGyro                                                */ 
+/* Description:            Set gyro calibration values for baseline shift               */
+/*                                                                                      */
+/* Entry parameters:       float X -> X axis calibration value                          */
+/*                         float Y -> Y axis calibration value                          */
+/*                         float Z -> Z axis calibration value                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::CalibrateGyro(float X, float Y, float Z){
   calGyX = X;
   calGyY = Y;
   calGyZ = Z;
 }
 
+/* ************************************************************************************ */
+/* Method's name:          CalibrateAcl                                                 */ 
+/* Description:            Set accelerometer calibration values for baseline shift      */
+/*                                                                                      */
+/* Entry parameters:       float X -> X axis calibration value                          */
+/*                         float Y -> Y axis calibration value                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::CalibrateAcl(float X, float Y){
   calAcX = X;
   calAcY = Y;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getRawData                                                   */ 
+/* Description:            Returns internal raw sensor data struct                      */
+/*                                                                                      */
+/* Entry parameters:                                                                    */
+/*                                                                                      */
+/* Return parameters:      mpu -> raw data struct                                       */
+/* ************************************************************************************ */
 mpu IMU::getRawData(){
   return _rawData;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          processMPUData                                               */ 
+/* Description:            Converts raw data to actual values. Also finds angular       */
+/*                         displacement                                                 */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      processedMpu -> processed data struct                        */
+/* ************************************************************************************ */
 processedMpu IMU::processMPUData(){
 
   _processedData.GyX = (float)(_rawData.GyX - calGyX)/131;
@@ -180,6 +301,15 @@ processedMpu IMU::processMPUData(){
   return _processedData;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          processAngles                                                */ 
+/* Description:            Converts gyro and accel data into angular displacement       */
+/*                                                                                      */
+/* Entry parameters:       processedMpu dados -> data struct to process                 */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::processAngles(processedMpu dados){
 
   unsigned long aux = micros();
@@ -224,6 +354,16 @@ void IMU::processAngles(processedMpu dados){
 */
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          filterMPUData                                                */ 
+/* Description:            Complementary filter to keep angular displacement from       */
+/*                         drifting                                                     */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::filterMPUData( ){
 
   _procAng.Roll   =   CF_GY*_ang.GyRoll + CF_AC*_ang.AclRoll;
@@ -233,29 +373,86 @@ void IMU::filterMPUData( ){
 
 }
 
+
+
+/* ************************************************************************************ */
+/* Method's name:          update                                                       */ 
+/* Description:            Reads from MPU-6050 and process data, updating internal      */
+/*                         values                                                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::update(){
   readRawMPU();
   processMPUData();
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getData                                                      */ 
+/* Description:            Returns internal processed data struct                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      processedMpu -> internal processed data struct               */
+/* ************************************************************************************ */
 processedMpu IMU::getData(){
 
   return _processedData;
 
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getRawAngles                                                 */ 
+/* Description:            Returns raw angles from gyro and accelerometer calculation   */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      angles -> internal processed data struct                     */
+/* ************************************************************************************ */
 angles IMU::getRawAngles(){
   return _ang;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getRotations                                                 */ 
+/* Description:            Returns processed angular displacement after the filter      */
+/*                         on Roll, Pitch and Yaw                                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      _procAng -> internal processed angular displacement struct   */
+/* ************************************************************************************ */
 processedAngles IMU::getRotations(){
   return _procAng;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          enableDebug                                                  */ 
+/* Description:            Enables serial communication for debbugging                  */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::enableDebug(){
   debbuging_enabled = 1;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          disableDebug                                                 */ 
+/* Description:            Disables serial communication for debbugging                 */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
 void IMU::disableDebug(){
   debbuging_enabled = 0;
 }
