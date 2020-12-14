@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Nov 14 19:16:18 2020
-
-@author: GiacomoAD
-"""
+#########################################################################################################################
+# File name:        server.py                                                                                           #
+# File description: Socket server for EH-Drone control                                                                  #
+# Author name:      Giacomo Dollevedo, Gustavo Fernandes                                                                #
+# Creation date:    18nov2020                                                                                           #
+# Revision date:    14dec2020                                                                                           #
+######################################################################################################################### 
 
 from threading import Thread
 import socket
@@ -72,6 +74,17 @@ def sendD(conn, data):
         pass
     
 
+#########################################################################################################################
+#                                                                                                                       #
+#   Method Name: authESP                                                                                                #
+#                                                                                                                       #
+#   Description: Authentication routine to ensure the client that was connected is the Drone client                     #
+#                                                                                                                       #
+#   Input parameters:   conn  -> Socket object that data will be sent to                                                #
+#                                                                                                                       #
+#   Output parameters:  n/a                                                                                             #
+#                                                                                                                       #
+#########################################################################################################################   
 def authESP(conn):
     
     global svDisp
@@ -91,7 +104,17 @@ def authESP(conn):
     
 
 
-
+#########################################################################################################################
+#                                                                                                                       #
+#   Method Name: threadedHandleDrone                                                                                    #
+#                                                                                                                       #
+#   Description: Threaded method that will handle all Drone socket communication                                        #
+#                                                                                                                       #
+#   Input parameters:   conn  -> Socket object that data will be sent to                                                #
+#                                                                                                                       #
+#   Output parameters:  n/a                                                                                             #
+#                                                                                                                       #
+#########################################################################################################################   
 def threadedHandleDrone(conn):
     
     global droneOnline
@@ -175,6 +198,17 @@ def threadedHandleDrone(conn):
             
     
 
+#########################################################################################################################
+#                                                                                                                       #
+#   Method Name: main                                                                                                   #
+#                                                                                                                       #
+#   Description: Main method that the script runs. Start up the server and handle user input.                           #
+#                                                                                                                       #
+#   Input parameters:   stdscr  -> Curses library object to better handle console display                               #
+#                                                                                                                       #
+#   Output parameters:  n/a                                                                                             #
+#                                                                                                                       #
+#########################################################################################################################  
 def main(stdscr):
         
     global droneOnline
