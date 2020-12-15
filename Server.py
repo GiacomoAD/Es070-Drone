@@ -303,6 +303,14 @@ def main(stdscr):
                             
                         else:
                             command = svInput.getkey()
+
+                             if(command == 'PADPLUS'):
+                                command = '+'
+                                
+                            elif(command == 'PADMINUS'):
+                                command = '-'
+
+                        
                             
                         cmd_q.put((1, command))
                         
