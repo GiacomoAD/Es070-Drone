@@ -109,7 +109,8 @@ String DroneWiFi::receiveData()
       i++;
     }
     //Serial.println(read_size);
-    Serial.println(read_size);
+    if(debugging_enabled)
+      Serial.println(read_size);
     return read_size;
   }
   
