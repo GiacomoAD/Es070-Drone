@@ -324,9 +324,17 @@ void IMU::processAngles(processedMpu dados){
   _ang.GyYaw   = _procAng.Yaw;
   
   _ang.GyPitch  += _processedData.GyX*dt; //MPU eixo X
+<<<<<<< HEAD
   _ang.GyPitch  += _ang.GyRoll*sin(_ang.GyYaw*dt*DEG_2_RAD);
 
   _ang.GyRoll   += _processedData.GyY*dt; //MPU eixo Y
+=======
+
+  _ang.GyPitch  += _ang.GyRoll*sin(_ang.GyYaw*dt*DEG_2_RAD);
+
+  _ang.GyRoll   += _processedData.GyY*dt; //MPU eixo Y
+
+>>>>>>> bb2354e830e1a4934176255b746cdaa3ccf463ee
   _ang.GyRoll   -= _ang.GyPitch*sin(_ang.GyYaw*dt*DEG_2_RAD);
 
   _ang.GyYaw    += _processedData.GyZ*dt; //MPU eixo Z

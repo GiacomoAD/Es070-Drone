@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* ***************************************************************** */
 /* File name:        IMU.h                                           */
 /* File description: MPU-6050 interface header file                  */
@@ -6,6 +7,11 @@
 /* Revision date:    15dec2020                                       */
 /* ***************************************************************** */
 
+=======
+  /*
+ IMU.h
+*/
+>>>>>>> bb2354e830e1a4934176255b746cdaa3ccf463ee
  
 #ifndef IMU_h
 #define IMU_h
@@ -27,8 +33,13 @@
 #define ACCEL_XOUT     0x3B // registro de leitura do eixo X do acelerômetro
 #define LED_BUILTIN    2    // LED do DevKit v1
 
+<<<<<<< HEAD
 #define CF_GY          0.95 //  Fator Gyro filtro complementar
 #define CF_AC          0.05 //  Fator Accel filtro complementar
+=======
+#define CF_GY          0.90
+#define CF_AC          0.10
+>>>>>>> bb2354e830e1a4934176255b746cdaa3ccf463ee
 
 #define RAD_2_DEG      57.2958  //  Conversao Radianos para Graus
 #define DEG_2_RAD      0.01745  //  Conversao Graus para Radianos
