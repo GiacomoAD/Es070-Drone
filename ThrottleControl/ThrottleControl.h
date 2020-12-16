@@ -8,11 +8,15 @@
 #ifndef ThrottleControl_h
 #define ThrottleControl_h
 
+#include "FlightControl.h"
 #include "Arduino.h"
 #include <analogWrite.h>
 #include <ESP32PWM.h>
 #include <ESP32Servo.h>
 #include <ESP32Tone.h>
+
+#define MAXTHROTTLE 1600
+#define MOTORTHROTTLE 1055 //sinal em que os motores começam a atuar
 
 
 
@@ -29,10 +33,11 @@ class ThrottleControl
   public:
     ThrottleControl();
     void initializeMotors(int pinMotor1, int pinMotor2, int pinMotor3, int pinMotor4);
-    void setTrottle(int desiredVel1, int desiredVel2, int desiredVel3, int desiredVel4);
-    int* getTrottle(); 
+    void setThrottle(int desiredVel1, int desiredVel2, int desiredVel3, int desiredVel4);
+    int* getThrottle(); 
     boolean testMotors();
     void Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw );
+    void SingleAxisControl(FlightControl pidRoll);
 
 };
 

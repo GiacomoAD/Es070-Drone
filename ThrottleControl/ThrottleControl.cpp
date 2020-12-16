@@ -4,12 +4,8 @@
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
  * Ultima Atualização: 18/11/2020
 ********************************************************************/
+#include "ThrottleControl.h"
 
-#include <analogWrite.h>
-#include <ESP32PWM.h>
-#include <ESP32Servo.h>
-#include <ESP32Tone.h>
-#include "TrottleControl.h"
 
 /* ******************************************************************************** */
 /* Nome do metodo:          ThrottleControl                                         */
@@ -24,7 +20,8 @@
 /* ******************************************************************************** */
 ThrottleControl::ThrottleControl() 
 { 
-  serial.println("Objeto de Drone Criado!");
+  Serial.begin(9600);
+  Serial.println("Objeto de Drone Criado!");
 }
 
 /* ******************************************************************************** */
@@ -50,19 +47,17 @@ void ThrottleControl::initializeMotors(int pinMotor1, int pinMotor2, int pinMoto
     
     _m1.write(1000);
     _m2.write(1000);
-    delay(2000);
-    _m1.write(2000);
-    _m2.write(2000);
 
     _m3.write(1000);
     _m4.write(1000);
-    delay(2000);
-    _m3.write(2000);
-    _m4.write(2000);
+
+     delay(2000); 
+
+
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:         setTrottle                                               */
+/* Nome do metodo:         setThrottle                                               */
 /* Descrição:              Define as velocidades que serão atingidas pelos 4 motores*/
 /*                                                                                  */
 /*                                                                                  */
@@ -74,14 +69,14 @@ void ThrottleControl::initializeMotors(int pinMotor1, int pinMotor2, int pinMoto
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::setTrottle(int desiredVel1, int desiredVel2, int desiredVel3, int desiredVel4)
+void ThrottleControl::setThrottle(int desiredVel1, int desiredVel2, int desiredVel3, int desiredVel4)
 {
-  if((desiredVel1 < 1500) & (desiredVel2 < 1500) & (desiredVel3 < 1500) & (desiredVel4 < 1500)){
+//  if((desiredVel1 < 1500) & (desiredVel2 < 1500) & (desiredVel3 < 1500) & (desiredVel4 < 1500)){
     _m1.write(desiredVel1); 
     _m2.write(desiredVel2); 
     _m3.write(desiredVel3);
     _m4.write(desiredVel4);
-  }
+//  }
 }
 
 /* ******************************************************************************** */
@@ -97,8 +92,9 @@ void ThrottleControl::setTrottle(int desiredVel1, int desiredVel2, int desiredVe
 /* ******************************************************************************** */
 
 
-int* ThrottleControl::getTrottle(){ 
-    int ActualVel[3];
+int* ThrottleControl::getThrottle(){ 
+    int* ActualVel = (int*) calloc(3, sizeof(int));
+
     ActualVel[0] = _m1.read();
     ActualVel[1] = _m2.read();
     ActualVel[2] = _m3.read();
@@ -138,19 +134,84 @@ boolean ThrottleControl:: testMotors(){
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::ThrottleControl(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw ){ 
-  
-    actualVel = getTrottle()
+void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw ){ 
+
+    int vel1, vel2, vel3, vel4;
+    int desiredVel1, desiredVel2, desiredVel3, desiredVel4;
+    int* actualVel = (int*) calloc(3, sizeof(int));
+
+
+    //Pega a velocidade atual em cada um dos motores
+    actualVel = getThrottle();
     vel1 = actualVel[0];
     vel2 = actualVel[1];
     vel3 = actualVel[2];
     vel4 = actualVel[3];
 
-    desiredVel1 = vel1 - pidPitch.getPID_Calculated(); + pidRoll.getPID_Calculated(); - pidYaw.getPID_Calculated();
-    desiredVel2 = vel2 + pidPitch.getPID_Calculated(); + pidRoll.getPID_Calculated(); + pidYaw.getPID_Calculated();
-    desiredVel3 = vel3 + pidPitch.getPID_Calculated(); - pidRoll.getPID_Calculated(); - pidYaw.getPID_Calculated();
-    desiredVel4 = vel4 - pidPitch.getPID_Calculated(); - pidRoll.getPID_Calculated(); + pidYaw.getPID_Calculated();
 
-    this.setTrottle(desiredVel1, desiredVel2, desiredVel3, desiredVel4);
+    //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
+    desiredVel1 = vel1 - pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
+    desiredVel2 = vel2 + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
+    desiredVel3 = vel3 + pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
+    desiredVel4 = vel4 - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
 
+    //Vamos saturar as velocidades maximas em cada motor
+    if(desiredVel1 > MAXTHROTTLE){
+      desiredVel1 = MAXTHROTTLE;
+    }
+    if(desiredVel2 > MAXTHROTTLE){
+      desiredVel2 = MAXTHROTTLE;
+    }
+    if(desiredVel3 > MAXTHROTTLE){
+      desiredVel3 = MAXTHROTTLE;
+    }
+    if(desiredVel4 > 1500){
+      desiredVel4 = 1500;
+    }
+
+    
+
+    //Seta a nova velocidade necessária para manter a saida controlada
+    setThrottle(desiredVel1, desiredVel2, desiredVel3, desiredVel4);
+
+}
+
+/* ******************************************************************************** */
+/* Nome do metodo:         ThrottleControl                                          */
+/* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
+/*                         de modo a contrlar apenas um eixo de movimento           */
+/*                                                                                  */
+/* Parametros de entrada: FlightControl pidRoll que é objeto do eixo roll de        */
+/*                        controle            ,                                     */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  Vazio (Nenhum)                                             */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
+
+void ThrottleControl::SingleAxisControl(FlightControl pidRoll){ 
+    int vel1, vel2;
+    int desiredVel1, desiredVel2;
+    int* actualVel = (int*) calloc(3, sizeof(int));
+
+   //Pega a velocidade atual em cada um dos motores
+    actualVel = getThrottle();
+    vel1 = actualVel[0];
+    vel2 = actualVel[1];
+
+     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
+    desiredVel1 = vel1  + pidRoll.getPID_Calculated() ;
+    desiredVel2 = vel2  - pidRoll.getPID_Calculated() ;
+
+    //Vamos saturar as velocidades maximas em cada motor
+    if(desiredVel1 > MAXTHROTTLE){
+      desiredVel1 = MAXTHROTTLE;
+    }
+    if(desiredVel2 > MAXTHROTTLE){
+      desiredVel2 = MAXTHROTTLE;
+    }
+
+    //Seta a nova velocidade necessária para manter a saida controlada
+    setThrottle(desiredVel1, desiredVel2 ,actualVel[2], actualVel[3] );
 }
