@@ -3,8 +3,10 @@
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
  * Ultima Atualização: 14/11/2020
 ********************************************************************/
-
+#include "FlightControl.h"
+#include "ThrottleControl.h"
 #include "Arduino.h"
+#include "IMU.h"
 #include <analogWrite.h>
 #include <ESP32PWM.h>
 #include <ESP32Servo.h>
@@ -24,18 +26,18 @@
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void FlightControl::FlighControl(char Axis)
+FlightControl::FlightControl(char Axis)
 {
 
 //Ganho de cada um dos controladores, proporcional, integrativo e derivativo
-    _kPID.fkp = 0; 
-    _kPID.fki = 0
-    _kPID.fkd = 0; 
+    _gains.fkp = 0; 
+    _gains.fki = 0;
+    _gains.fkd = 0; 
     _axis = Axis;
 
 
-//Set point de entrada para o controlador (Estático) 
-    setPoint = 0;
+//Set point de entrada para o controlador (Inicial = 0) 
+    _setPoint = 0;
 }
 
 /* ******************************************************************************** */
@@ -54,17 +56,17 @@ void FlightControl::FlighControl(char Axis)
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void FlightControl::FlighControl(float fkp, float fki, float fkd, char Axis)
+FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
 {
 
 //Ganho de cada um dos controladores, proporcional, integrativo e derivativo
-    kPID.fkp = fkp; 
-    kPID.fki = fki
-    kPID.fkd = fkd; 
+    _gains.fkp = fkp; 
+    _gains.fki = fki;
+    _gains.fkd = fkd; 
     _axis = Axis;
 
-//Set point de entrada para o controlador (Estático) 
-    setPoint = 0;
+//Set point de entrada para o controlador (Inicial = 0) 
+    _setPoint = 0;
 }
 
 
@@ -81,7 +83,7 @@ void FlightControl::FlighControl(float fkp, float fki, float fkd, char Axis)
 /* ******************************************************************************** */
 
 
-void FlightControl::pidControl(IMU imu)
+void FlightControl::pidControl(processedMpu imu)
 {
 //YAW = Z
 //ROLL = Y
@@ -92,22 +94,31 @@ void FlightControl::pidControl(IMU imu)
 //Testa qual eixo o objeto foi relacionado para coletar a informação adequada da IMU
     switch (_axis)
     {
-    case "r":
-        fgyro = imu.getData().Gyy;
+    case 'r':
+        fgyro = imu.GyY;
         break;
-    case "p":
-        fgyro = imu.getData().Gyx;
+    case 'p':
+        fgyro = imu.GyX;
         break;
-    case "y"
-        fgyro = imu.getData().Gyz;
+    case 'y':
+        fgyro = imu.GyZ;
     default:
         break;
     }
 
     
 //Erro instantaneo e acumulado 
-    float ferror_temp = fgyroRoll - _setpoint; 
-    _fimem += _gains.fki * frollError_temp; 
+    float ferror_temp = fgyro - _setPoint; 
+    _fimem += _gains.fki * ferror_temp; 
+    
+//limitando a saida acumulada 
+
+  if(_fimem > PIDMAX) {
+    _fimem = PIDMAX;
+  }
+  else if(_fimem < (PIDMAX * -1)){ 
+    _fimem = PIDMAX * -1;
+  }
 
 //Sinal de saida do PID e atualização do erro previo
 
@@ -191,7 +202,41 @@ void FlightControl::setKd(float kd){
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */
+
 void FlightControl::setKi(float ki){
     _gains.fki = ki;
 
+}
+
+
+/* ******************************************************************************** */
+/* Nome do metodo:          setSetPoint                                             */
+/* Descrição:                - Seta um novo valor para o setPoint do controlador    */
+/*                             de velocidade                                        */
+/*                                                                                  */
+/* Parametros de entrada: float newSetPoint                                         */
+/*                                                                                  */
+/* Parametros de saida: Nenhum (Vazio)                                              */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
+
+void FlightControl::setSetPoint(float newSetPoint){ 
+  _setPoint = newSetPoint;
+}
+
+
+/* ******************************************************************************** */
+/* Nome do metodo:          getSetPoint                                             */
+/* Descrição:                - Seta um novo valor para o setPoint do controlador    */
+/*                             de velocidade                                        */
+/*                                                                                  */
+/* Parametros de entrada: Nenhum (Vazio)                                            */
+/*                                                                                  */
+/* Parametros de saida: float _setPoint                                             */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
+float FlightControl::getSetPoint(){ 
+  return _setPoint;
 }

@@ -8,37 +8,43 @@
 #define FlightControl_h
 
 #include "Arduino.h"
+#include "IMU.h"
 #include <analogWrite.h>
 #include <ESP32PWM.h>
 #include <ESP32Servo.h>
 #include <ESP32Tone.h>
+
+#define PIDMAX 400
 
 typedef struct kPID
 {
 float fkp, fki, fkd;
 }; 
 
-class FlightControlControl
+class FlightControl
 {
 
   private:
     kPID _gains;
-    static float _fsetPoint;
+    float _fsetPoint;
     float _fpidCalculated;
     float _fimem; 
     float _ferror_previous;
     char  _axis;
+    float _setPoint;
     
     
   public:
     FlightControl(char Axis);
     FlightControl(float fkp, float fki, float fkd, char Axis);
-    float getPID_Calculated()
+    float getPID_Calculated();
     kPID getGains();
     void setKp(float kp);
     void setKd(float kd);
     void setKi(float ki);
-    void pidControl(IMU imu);
+    void pidControl(processedMpu imu);
+    void setSetPoint(float newSetPoint);
+    float getSetPoint();
 
 };
 
