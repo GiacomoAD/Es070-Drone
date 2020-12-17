@@ -147,6 +147,29 @@ droneParams DroneWiFi::getParams()
  return _params;
 }
 
+
+/* ************************************************************************************ */
+/* Method's name:          getPIDGains                                                  */ 
+/* Description:            Return the internal drone PID gains to specific axis         */
+/*                                                                                      */
+/* Entry parameters:       unsigned char axis -> desired axis gains                     */
+/*                                                                                      */
+/* Return parameters:      pidGains -> internal PID gains struct                        */
+/* ************************************************************************************ */
+ pidGains DroneWiFi::getPIDGains(unsigned char axis)
+ {
+  if(axis == 'r'){
+    return _pidRoll;
+  }
+
+  else if(axis == 'p'){
+    return _pidPitch;
+  }
+  
+  else
+    return _pidYaw;
+ }
+
 unsigned char DroneWiFi::connectWifi(char* ssid, char* pass)
 {
   _wifiCon.addAP(ssid, pass); // Network name and password
@@ -207,7 +230,10 @@ void DroneWiFi::processComm(String msg)
 {
   int len = (int)msg.length();
   int i = 0;
+  unsigned char j = 0;
+  unsigned char k_flag = 1;
   char ch;
+  char buffer_k[5];
   
   if(joystick_enabled){
     switch (msg[0]){
@@ -286,6 +312,7 @@ void DroneWiFi::processComm(String msg)
           i++;
           break;
         //#ST1000;1000;1000;1000
+        
         case 'T':
 
           if(msg[i-1] == 'S')
@@ -299,10 +326,110 @@ void DroneWiFi::processComm(String msg)
           break;
         
         case 'G':
+          if(msg[i-1]== '#'){
+            if(debugging_enabled)
+              Serial.println("Main Loop Started!");
+            sendData("Ready to fly!\0");
+          }
 
-          if(debugging_enabled)
-            Serial.println("Main Loop Started!");
-          sendData("Ready to fly!\0");
+
+          //#SGaxis;kp;ki;kd
+          if(msg[i-1] == 'S'){
+            i++;
+
+            if(msg[i] == 'r'){
+              i = i + 2;
+
+              while(i < len){
+                buffer_k[j] = msg[i];
+                i++;
+                j++;
+                
+                if(msg[i] == ';'){
+                  buffer_k[j] = '\0';
+                  Serial.println(buffer_k);
+
+                  if(k_flag == 1){
+                    _pidRoll.kp = atof(buffer_k);
+                    Serial.println(_pidRoll.kp);
+                    k_flag++;
+                  }
+
+                  else if(k_flag == 2){
+                    _pidRoll.ki = atof(buffer_k);
+                    Serial.println(_pidRoll.kp);
+                    k_flag++;
+                  }
+
+                  j = 0;
+                  i++;
+                }
+              }
+
+              buffer_k[j] = '\0';
+              Serial.println(buffer_k);
+
+              _pidRoll.kd = atof(buffer_k);
+              Serial.println(_pidRoll.kd);
+              k_flag = 1;
+                  
+
+            }
+
+            else if(msg[i] == 'p'){
+              i = i + 2;
+
+              while(i < len){
+                buffer_k[j] = msg[i];
+                i++;
+                j++;
+                
+                if(msg[i] == ';'){
+                  buffer_k[j] = '\0';
+
+                  if(k_flag == 1)
+                    _pidPitch.kp = atof(buffer_k);
+
+                  else if(k_flag == 2)
+                    _pidPitch.ki = atof(buffer_k);
+
+                  j = 0;
+                  i++;
+                }
+              }
+
+              buffer_k[j] = '\0';
+              _pidPitch.kd = atof(buffer_k);
+
+            }
+
+            else{
+              i = i + 2;
+
+              while(i < len){
+                buffer_k[j] = msg[i];
+                i++;
+                j++;
+                
+                if(msg[i] == ';'){
+                  buffer_k[j] = '\0';
+
+                  if(k_flag == 1)
+                    _pidYaw.kp = atof(buffer_k);
+
+                  else if(k_flag == 2)
+                    _pidYaw.ki = atof(buffer_k);
+
+                  j = 0;
+                  i++;
+                }
+              }
+
+              buffer_k[j] = '\0';
+              _pidYaw.kd = atof(buffer_k);
+            }
+
+          }
           i++;
           break;
 

@@ -42,6 +42,13 @@ typedef struct rotVel
 
  };
 
+ typedef struct pidGains
+ {
+  float kp = 0;
+  float ki = 0;
+  float kd = 0; 
+ };
+
 class DroneWiFi
 {
 public:
@@ -133,6 +140,16 @@ public:
 /* ************************************************************************************ */
  rotVel getVel();
 
+/* ************************************************************************************ */
+/* Method's name:          getPIDGains                                                  */ 
+/* Description:            Return the internal drone PID gains to specific axis         */
+/*                                                                                      */
+/* Entry parameters:       unsigned char axis -> desired axis gains                     */
+/*                                                                                      */
+/* Return parameters:      pidGains -> internal PID gains struct                        */
+/* ************************************************************************************ */
+ pidGains getPIDGains(unsigned char axis);
+
 
 /* ************************************************************************************ */
 /* Method's name:          enable_debug                                                 */ 
@@ -170,6 +187,12 @@ private:
 
   /*Struct to monitor joystick setpoints*/
   rotVel  _joystickSetpoints;
+
+  /*PID Gains struct for each axis*/
+  pidGains _pidRoll;
+  pidGains _pidPitch;
+  pidGains _pidYaw;
+  
 
   unsigned char connectWifi(char* ssid, char* pass);
 
