@@ -4,7 +4,7 @@
 # File description: Socket server for EH-Drone control                                                                  #
 # Author name:      Giacomo Dollevedo, Gustavo Fernandes                                                                #
 # Creation date:    18nov2020                                                                                           #
-# Revision date:    16dec2020                                                                                           #
+# Revision date:    17dec2020                                                                                           #
 ######################################################################################################################### 
 
 from threading import Thread
@@ -148,7 +148,7 @@ def threadedHandleDrone(conn):
         svDisp.addstr(8,24, str(msg))
         svDisp.refresh()
 
-        svInput.addstr(3,0,"JOYSTICK DESHABILITADO", curses.color_pair(3)|curses.A_BOLD)
+        svInput.addstr(3,0,"JOYSTICK DESABILITADO", curses.color_pair(3)|curses.A_BOLD)
         svInput.addstr(4,0,"\t´#J´ = HABILITAR JOYSTICK", curses.color_pair(1))
         svInput.addstr(5,0,"\t´#SGaxis;kp;ki;kd´ = SETAR GANHO CONTROLADOR POR EIXO", curses.color_pair(2))
         svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = SETAR THROTTLE", curses.color_pair(1))
@@ -325,7 +325,7 @@ def main(stdscr):
                             svInput.addstr(4,0,"\t´8´ = -PITCH RATE\t ´4´ = -ROLL RATE\t ´-´ = -THROTTLE", curses.color_pair(1))
                             svInput.addstr(5,0,"\t´2´ = +PITCH RATE\t ´6´ = +ROLL RATE\t ´+´ = +THROTTLE", curses.color_pair(1))
                             svInput.addstr(6,0,"\t´5´ = SETAR ROLL E PITCH PARA 0", curses.color_pair(2))
-                            svInput.addstr(7,0,"\t´s´ = DESHABILITAR JOYSTICK", curses.color_pair(3))
+                            svInput.addstr(7,0,"\t´s´ = DESABILITAR JOYSTICK", curses.color_pair(3))
                             svInput.addstr(3,99, "8", curses.color_pair(1)|curses.A_BOLD)
                             svInput.addstr(4,99, "|", curses.color_pair(1)|curses.A_BOLD)
                             svInput.addstr(5,95,  "4---5---6", curses.color_pair(1)|curses.A_BOLD)
@@ -340,7 +340,7 @@ def main(stdscr):
                             joystick_enabled = 0
                             svInput.move(3,0)
                             svInput.clrtobot()
-                            svInput.addstr(3,0,"JOYSTICK DESHABILITADO", curses.color_pair(3)|curses.A_BOLD)
+                            svInput.addstr(3,0,"JOYSTICK DESABILITADO", curses.color_pair(3)|curses.A_BOLD)
                             svInput.addstr(4,0,"\t´#J´ = HABILITAR JOYSTICK", curses.color_pair(1))
                             svInput.addstr(5,0,"\t´#SGaxis;kp;ki;kd´ = SETAR GANHO CONTROLADOR POR EIXO", curses.color_pair(2))
                             svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = SETAR THROTTLE", curses.color_pair(1))
