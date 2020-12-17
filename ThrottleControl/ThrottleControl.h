@@ -37,8 +37,7 @@ class ThrottleControl
     int* getThrottle(); 
     boolean testMotors();
     void Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw );
-    void SingleAxisControl(FlightControl pidRoll);
-
+    void SingleAxisVelControl(FlightControl pidRoll);
 };
 
 #endif

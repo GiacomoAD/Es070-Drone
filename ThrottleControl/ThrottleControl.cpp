@@ -95,10 +95,10 @@ void ThrottleControl::setThrottle(int desiredVel1, int desiredVel2, int desiredV
 int* ThrottleControl::getThrottle(){ 
     int* ActualVel = (int*) calloc(3, sizeof(int));
 
-    ActualVel[0] = _m1.read();
-    ActualVel[1] = _m2.read();
-    ActualVel[2] = _m3.read();
-    ActualVel[3] = _m4.read();
+    ActualVel[0] = 1000 + (5.555* _m1.read());
+    ActualVel[1] = 1000 + (5.555* _m2.read());
+    ActualVel[2] = 1000 + (5.555* _m3.read());
+    ActualVel[3] = 1000 + (5.555* _m4.read());
 
     return ActualVel;
 }
@@ -144,9 +144,9 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
     //Pega a velocidade atual em cada um dos motores
     actualVel = getThrottle();
     vel1 = actualVel[0];
-    vel2 = actualVel[1];
-    vel3 = actualVel[2];
-    vel4 = actualVel[3];
+    vel2 = actualVel[0];
+    vel3 = actualVel[0];
+    vel4 = actualVel[0];
 
 
     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
@@ -165,8 +165,8 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
     if(desiredVel3 > MAXTHROTTLE){
       desiredVel3 = MAXTHROTTLE;
     }
-    if(desiredVel4 > 1500){
-      desiredVel4 = 1500;
+    if(desiredVel4 > MAXTHROTTLE){
+      desiredVel4 = MAXTHROTTLE;
     }
 
     
@@ -190,8 +190,8 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::SingleAxisControl(FlightControl pidRoll){ 
-    int vel1, vel2;
+void ThrottleControl::SingleAxisVelControl(FlightControl pidRoll){ 
+    int vel1, vel2, vel3, vel4;
     int desiredVel1, desiredVel2;
     int* actualVel = (int*) calloc(3, sizeof(int));
 
@@ -199,10 +199,14 @@ void ThrottleControl::SingleAxisControl(FlightControl pidRoll){
     actualVel = getThrottle();
     vel1 = actualVel[0];
     vel2 = actualVel[1];
+    vel3 = actualVel[1];
+    vel4 = actualVel[1];
 
-     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
-    desiredVel1 = vel1  + pidRoll.getPID_Calculated() ;
+     //Calcula as compensações em cada motor para manter o controle de apenas um dos eixos de movimentação (pitch)
+    desiredVel1 = vel1  - pidRoll.getPID_Calculated() ;
     desiredVel2 = vel2  - pidRoll.getPID_Calculated() ;
+    desiredVel1 = vel3  + pidRoll.getPID_Calculated() ;
+    desiredVel2 = vel4  + pidRoll.getPID_Calculated() ;
 
     //Vamos saturar as velocidades maximas em cada motor
     if(desiredVel1 > MAXTHROTTLE){
@@ -210,6 +214,12 @@ void ThrottleControl::SingleAxisControl(FlightControl pidRoll){
     }
     if(desiredVel2 > MAXTHROTTLE){
       desiredVel2 = MAXTHROTTLE;
+    }
+    if(desiredVel3 > MAXTHROTTLE){
+      desiredVel3 = MAXTHROTTLE;
+    }
+    if(desiredVel4 > MAXTHROTTLE){
+      desiredVel4 = MAXTHROTTLE;
     }
 
     //Seta a nova velocidade necessária para manter a saida controlada
