@@ -3,7 +3,7 @@
 /* File description: WiFi socket connection handling implementation  */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    14dec2020                                       */
+/* Revision date:    18dec2020                                       */
 /* ***************************************************************** */
 
 #include "DroneWiFi.h"
@@ -235,33 +235,39 @@ void DroneWiFi::processComm(String msg)
   char ch;
   char buffer_k[5];
   
+  /*Se o Joystick esta habilitado, a maquina de estados eh diferente*/
   if(joystick_enabled){
     switch (msg[0]){
 
+    /*Caso 's' sai do modo de Joystick*/
     case 's':
       joystick_enabled = 0;
       if(debugging_enabled)
         Serial.println("Joystick Disabled.");
       break;
     
+    /*Caso '5' reseta os setpoints de velocidade*/
     case '5':
       _joystickSetpoints.roll   = 0;
       _joystickSetpoints.pitch  = 0;  
       break;
 
+    /*Caso '8' diminui velocidade de pitch*/
     case '8':
       _joystickSetpoints.pitch  -= VEL_INC;
       if(_joystickSetpoints.pitch <= -10)
         _joystickSetpoints.pitch = -10;
      
       break;
-    
+
+    /*Caso '2' aumenta velocidade de pitch*/
     case '2':
       _joystickSetpoints.pitch  += VEL_INC;
       if(_joystickSetpoints.pitch >= 10)
         _joystickSetpoints.pitch = 10;
       break;
 
+    /*Caso '8' aumenta velocidade de roll*/
     case '6':
       _joystickSetpoints.roll   += VEL_INC;
       if(_joystickSetpoints.roll >= 10)
@@ -269,18 +275,21 @@ void DroneWiFi::processComm(String msg)
 
       break;
 
+    /*Caso '8' diminui velocidade de roll*/
     case '4':
       _joystickSetpoints.roll   -= VEL_INC;
       if(_joystickSetpoints.roll <= -10)
         _joystickSetpoints.roll = -10;
       break;
 
+    /*Caso '+' aumenta potencia base dos motores*/
     case '+':
       _joystickSetpoints.throttle   += VEL_INC;
       if(_joystickSetpoints.throttle >= 50)
         _joystickSetpoints.throttle = 50;
       break;
 
+    /*Caso '-' diminui potencia base dos motores*/
     case '-':
       _joystickSetpoints.throttle   -= VEL_INC;
       if(_joystickSetpoints.throttle <= 0)
@@ -314,7 +323,7 @@ void DroneWiFi::processComm(String msg)
         //#ST1000;1000;1000;1000
         
         case 'T':
-
+          /*Checa se o comando foi do tipo "Set"*/
           if(msg[i-1] == 'S')
             if(len == 22){
               _params.M1 = (msg[3]-48)*1000 + (msg[4]-48)*100 + (msg[5]-48)*10 + (msg[6]-48);
@@ -326,6 +335,7 @@ void DroneWiFi::processComm(String msg)
           break;
         
         case 'G':
+          /*Checa se o comando foi apenas o "GO" do sistema*/
           if(msg[i-1]== '#'){
             if(debugging_enabled)
               Serial.println("Main Loop Started!");
@@ -333,10 +343,12 @@ void DroneWiFi::processComm(String msg)
           }
 
 
+          
+          /*Checa se o comando foi do tipo "Set"*/
           //#SGaxis;kp;ki;kd
           if(msg[i-1] == 'S'){
             i++;
-
+            /*Caso o eixo escolhido tenha sido Roll*/
             if(msg[i] == 'r'){
               i = i + 2;
 
@@ -375,7 +387,7 @@ void DroneWiFi::processComm(String msg)
                   
 
             }
-
+            /*Caso o eixo escolhido tenha sido Pitch*/
             else if(msg[i] == 'p'){
               i = i + 2;
 
@@ -403,6 +415,7 @@ void DroneWiFi::processComm(String msg)
 
             }
 
+            /*Qualquer outro caso, cai no Yaw*/
             else{
               i = i + 2;
 
@@ -433,15 +446,20 @@ void DroneWiFi::processComm(String msg)
           i++;
           break;
 
+        /*NAO COMPLETO!*/
+        /*Alteracao de velocidade*/
+        /*NAO COMPLETO!*/
         case 'V':
-          if(len == 7){
+          /*NAO COMPLETO!*/
+          /*if(len == 7){
             _params.setPoint = (msg[3]-48)*10 + (msg[4]-48);
             _params.time = (msg[6]-48);
           }
 
-          i = len;
+          i = len;*/
           break;
 
+        /*Comando para resetar a potencia dos motores*/
         case 'R':
 
           _params.M1 = 1200;
@@ -452,6 +470,7 @@ void DroneWiFi::processComm(String msg)
           i = len;
           break;
 
+        /*Comando para Habilitar Joystick*/
         case 'J':
           joystick_enabled = 1;
           i++;
@@ -459,6 +478,7 @@ void DroneWiFi::processComm(String msg)
             Serial.println("Joystick Enabled.");
           break;
 
+        /*Comandos que nao foram identificados*/
         default:
           if(debugging_enabled)
             Serial.println("Unindentified Command.");
