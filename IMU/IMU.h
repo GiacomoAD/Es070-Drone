@@ -27,8 +27,8 @@
 #define ACCEL_XOUT     0x3B // registro de leitura do eixo X do acelerômetro
 #define LED_BUILTIN    2    // LED do DevKit v1
 
-#define CF_GY          0.95 //  Fator Gyro filtro complementar
-#define CF_AC          0.05 //  Fator Accel filtro complementar
+#define CF_GY          0.99 //  Fator Gyro filtro complementar
+#define CF_AC          0.01 //  Fator Accel filtro complementar
 
 #define RAD_2_DEG      57.2958  //  Conversao Radianos para Graus
 #define DEG_2_RAD      0.01745  //  Conversao Graus para Radianos
@@ -311,6 +311,10 @@ private:
 
   float calAcX = 0;
   float calAcY = 0;
+
+  float _gyroRoll = 0;
+  float _gyroPitch = 0;
+  
 
   unsigned long _lastTimestamp = 0;
 
