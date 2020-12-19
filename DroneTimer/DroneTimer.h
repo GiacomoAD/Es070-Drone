@@ -3,7 +3,7 @@
 /* File description: Timer interface header file                     */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    14dec2020                                       */
+/* Revision date:    18dec2020                                       */
 /* ***************************************************************** */
  
 #ifndef DroneTimer_h
@@ -21,7 +21,7 @@ public:
 
 /* ************************************************************************************ */
 /* Method's name:          initTimer                                                  	*/ 
-/* Description:            Initialize hardware timer interruptions                		*/
+/* Description:            Initialize hardware timer interruptions                		  */
 /*                                                                                      */
 /* Entry parameters:       int frequency -> timer interrupt frequency                   */
 /*                         void (*fn)(void) -> function pointer that will be exectued   */
@@ -33,9 +33,9 @@ public:
 
 /* ************************************************************************************ */
 /* Method's name:          enableTimer                                                  */ 
-/* Description:            Enable timer interruptions                					*/
+/* Description:            Enable timer interruptions                					          */
 /*                                                                                      */
-/* Entry parameters:       n/a 															*/
+/* Entry parameters:       n/a 															                            */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */  
@@ -44,9 +44,9 @@ public:
 
 /* ************************************************************************************ */
 /* Method's name:          disableTimer                                                 */ 
-/* Description:            Disable timer interruptions                					*/
+/* Description:            Disable timer interruptions                					        */
 /*                                                                                      */
-/* Entry parameters:       n/a 															*/
+/* Entry parameters:       n/a 															                            */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */  
@@ -55,9 +55,9 @@ public:
   
 /* ************************************************************************************ */
 /* Method's name:          setFrequency                                                 */ 
-/* Description:            Set the timer frequency 	                					*/
+/* Description:            Set the timer frequency 	                					          */
 /*                                                                                      */
-/* Entry parameters:       int frequency -> frequency to be set 						*/
+/* Entry parameters:       int frequency -> frequency to be set 						            */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */ 
@@ -66,11 +66,11 @@ public:
 
 /* ************************************************************************************ */
 /* Method's name:          getFrequency                                                 */ 
-/* Description:            Get the timer frequency 	                					*/
+/* Description:            Get the timer frequency 	                					          */
 /*                                                                                      */
-/* Entry parameters:       n/a															*/
+/* Entry parameters:       n/a															                            */
 /*                                                                                      */
-/* Return parameters:      int -> Timer frequency                                 		*/
+/* Return parameters:      int -> Timer frequency                                 		  */
 /* ************************************************************************************ */ 
   int getFrequency();
  
@@ -79,6 +79,7 @@ private:
   /*Hardware timer for system loop time management*/
   hw_timer_t * timer0 = NULL;
   
+  /*Default frequency to 10 Hz*/
   int timerFreq = 10;
 
 };

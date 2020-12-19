@@ -3,7 +3,7 @@
 /* File description: Timer interface implementation file             */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    14dec2020                                       */
+/* Revision date:    18dec2020                                       */
 /* ***************************************************************** */
 
 #include "DroneTimer.h"
@@ -19,15 +19,21 @@
 /* ************************************************************************************ */
 void DroneTimer::initTimer(int frequency, void (*fn)(void))     
 {
-	timer0 = timerBegin(0, 80, true);
+	timerFreq = frequency;
+	/*timerBegin(NumeroDoTimer, PreScaler, UpCount/DownCount*/
+	/*80 -> clock do timer eh 80 MHz. Entao 80.000.000/80 = 1.000.000s = 1 microssegundo*/
+	timer0 = timerBegin(0, 80, true); 
+
+	/*timerAttachInterrupt(ObjetoTimer, FuncaoDisparada, TipoDaInterrupcao)*/
   	timerAttachInterrupt(timer0, fn, true);
+	/*timerAlarmWrite(ObjetoTimer, periodoInterrupcao(microssegundos) , RepetirContagem)*/
   	timerAlarmWrite(timer0, 1000000/frequency, true);
   	Serial.println("Timer Interrupt Attached!");
 }
 
 /* ************************************************************************************ */
 /* Method's name:          enableTimer                                                  */ 
-/* Description:            Enable timer interruptions                					*/
+/* Description:            Enable timer interruptions.                					*/
 /*                                                                                      */
 /* Entry parameters:       n/a 															*/
 /*                                                                                      */
@@ -40,7 +46,7 @@ void DroneTimer::enableTimer()
 
 /* ************************************************************************************ */
 /* Method's name:          disableTimer                                                 */ 
-/* Description:            Disable timer interruptions                					*/
+/* Description:            Disable timer interruptions.                					*/
 /*                                                                                      */
 /* Entry parameters:       n/a 															*/
 /*                                                                                      */
@@ -52,6 +58,9 @@ void DroneTimer::disableTimer()
 }
 
 
+
+
+/*NAO USAMOS PRA NADA*/
 /* ************************************************************************************ */
 /* Method's name:          setFrequency                                                 */ 
 /* Description:            Set the timer frequency 	                					*/
@@ -65,6 +74,7 @@ void DroneTimer::setFrequency(int frequency)
 	timerFreq = frequency;
 }
 
+/*NAO USAMOS PRA NADA*/
 /* ************************************************************************************ */
 /* Method's name:          getFrequency                                                 */ 
 /* Description:            Get the timer frequency 	                					*/
