@@ -399,12 +399,15 @@ void DroneWiFi::processComm(String msg)
                 if(msg[i] == ';'){
                   buffer_k[j] = '\0';
 
-                  if(k_flag == 1)
+                  if(k_flag == 1){
                     _pidPitch.kp = atof(buffer_k);
+                    k_flag++;
+                  }
 
-                  else if(k_flag == 2)
+                  else if(k_flag == 2){
                     _pidPitch.ki = atof(buffer_k);
-
+                    k_flag++;
+                  }
                   j = 0;
                   i++;
                 }
@@ -412,7 +415,7 @@ void DroneWiFi::processComm(String msg)
 
               buffer_k[j] = '\0';
               _pidPitch.kd = atof(buffer_k);
-
+              k_flag = 1;
             }
 
             /*Qualquer outro caso, cai no Yaw*/
@@ -427,11 +430,14 @@ void DroneWiFi::processComm(String msg)
                 if(msg[i] == ';'){
                   buffer_k[j] = '\0';
 
-                  if(k_flag == 1)
+                  if(k_flag == 1){
                     _pidYaw.kp = atof(buffer_k);
-
-                  else if(k_flag == 2)
+                    k_flag++;
+                  }
+                  else if(k_flag == 2){
                     _pidYaw.ki = atof(buffer_k);
+                    k_flag++;
+                  }
 
                   j = 0;
                   i++;
@@ -440,6 +446,7 @@ void DroneWiFi::processComm(String msg)
 
               buffer_k[j] = '\0';
               _pidYaw.kd = atof(buffer_k);
+              k_flag = 1;
             }
 
           }
