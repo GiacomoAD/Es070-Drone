@@ -145,7 +145,9 @@ def threadedHandleDrone(conn):
         msg = receive(conn).decode(encoding="utf-8")
         print("RECEBIDO --->\t" + msg)
         svDisp.addstr(8,0,'MENSAGEM RECEBIDA --->')
+
         svDisp.addstr(8,24, str(msg))
+            
         svDisp.refresh()
 
         svInput.addstr(3,0,"JOYSTICK DESABILITADO", curses.color_pair(3)|curses.A_BOLD)
@@ -172,7 +174,16 @@ def threadedHandleDrone(conn):
             msg = receive(conn).decode(encoding="utf-8")
             print("RECEBIDO --->\t" + msg)
             svDisp.addstr(8,0,'MENSAGEM RECEBIDA --->')
-            svDisp.addstr(8,24, str(msg) + blank)
+            splitado = str(msg).split("\n")
+        
+            try:
+                svDisp.addstr(8,24, splitado[0])
+                svDisp.addstr(9,24, splitado[1])
+                
+            except:
+                pass
+            
+            #svDisp.addstr(8,24, str(msg) + blank)
             svDisp.refresh()
             svInput.refresh()
             recv_counter += 1
