@@ -1,9 +1,9 @@
-/*******************************************************************
- * Descrição: Arquivo c++ que implementa a interface de controle 
- * de velocidade dos motores do Drone
- * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
- * Ultima Atualização: 18/11/2020
-********************************************************************/
+/************************************************************************
+ * Descrição: Arquivo c++ que implementa a interface de controle        * 
+ * de velocidade dos motores do Drone                                   *
+ * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo                 *
+ * Ultima Atualização: 30/12/2020                                       *
+*************************************************************************/
 #include "ThrottleControl.h"
 
 
@@ -20,7 +20,6 @@
 /* ******************************************************************************** */
 ThrottleControl::ThrottleControl() 
 { 
-  Serial.begin(9600);
   Serial.println("Objeto de Drone Criado!");
 }
 
@@ -57,7 +56,7 @@ void ThrottleControl::initializeMotors(int pinMotor1, int pinMotor2, int pinMoto
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:         setThrottle                                               */
+/* Nome do metodo:         setActualVel                                               */
 /* Descrição:              Define as velocidades que serão atingidas pelos 4 motores*/
 /*                                                                                  */
 /*                                                                                  */
@@ -80,13 +79,13 @@ void ThrottleControl::setActualVel(int desiredVel1, int desiredVel2, int desired
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:         getTrottle                                               */
-/* Descrição:              Consulta a ultima velocidade definida nos 4 motores      */
+/* Nome do metodo:         getActualVel                                             */
+/* Descrição:              Consulta o sinal pwm definido nos 4 motores              */
 /*                                                                                  */
 /*                                                                                  */
 /* Parametros de entrada: Nenhum (Vazio)                                            */
 /*                                                                                  */
-/* Parametros de saida:   int[3] array com os 4 valores de velocidades lidos        */
+/* Parametros de saida:   int* array com os 4 valores de velocidades lidos          */
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */
@@ -115,13 +114,26 @@ int* ThrottleControl::getActualVel(){
 /*                                                                                  */
 /* ******************************************************************************** */
 
-boolean ThrottleControl:: testMotors(){
+void ThrottleControl:: testMotors(){
+      _m1.write(1500);
+      delay(5000);
+      _m1.write(1000);
 
+      _m2.write(1500);
+      delay(5000);
+      _m2.write(1000);
 
+      _m3.write(1500);
+      delay(5000);
+      _m3.write(1000);
+
+      _m4.write(1500);
+      delay(5000);
+      _m4.write(1000);      
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:         ThrottleControl                                          */
+/* Nome do metodo:         Control                                                  */
 /* Descrição:              Distribuia a velocidade controlada para os 4 motores     */
 /*                                                                                  */
 /*                                                                                  */
@@ -143,9 +155,9 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
 
 
     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
-    desiredVel1 = _throttle - pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
+    desiredVel1 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
     desiredVel2 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
-    desiredVel3 = _throttle + pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
+    desiredVel3 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
     desiredVel4 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
 
     //Vamos saturar as velocidades maximas em cada motor
@@ -170,7 +182,7 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:         ThrottleControl                                          */
+/* Nome do metodo:         SingleAxisVelControl                                     */
 /* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
 /*                         de modo a contrlar apenas um eixo de movimento           */
 /*                                                                                  */
@@ -204,10 +216,36 @@ void ThrottleControl::SingleAxisVelControl(FlightControl pidPitch){
     setActualVel(desiredVel1, desiredVel2 ,1000, 1000 );
 }
 
+/* ******************************************************************************** */
+/* Nome do metodo:         getThrottle                                              */
+/* Descrição:              Consulta a velocidade (pwm) base atual dos motores       */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de entrada: Vazio (Nenhum)                                            */
+/*                                                                                  */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  _throttle (int)                                            */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
 int ThrottleControl::getThrottle(){ 
   return _throttle;
 }
 
+/* ******************************************************************************** */
+/* Nome do metodo:         setThrottle                                              */
+/* Descrição:              Define nova velocidade (pwm) base atual dos motores      */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de entrada: throttleDesired (int)                                     */
+/*                                                                                  */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  Vazio (Nenhum )                                            */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
 void ThrottleControl::setThrottle(int throttleDesired){ 
   _throttle = throttleDesired;
 }

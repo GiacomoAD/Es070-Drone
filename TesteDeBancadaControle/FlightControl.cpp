@@ -1,7 +1,7 @@
 /*******************************************************************
  * Descrição: Arquivo c++ que implementa o controlador de voo do drone.
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
- * Ultima Atualização: 14/11/2020
+ * Ultima Atualização: 30/12/2020
 ********************************************************************/
 #include "FlightControl.h"
 #include "ThrottleControl.h"
@@ -73,7 +73,7 @@ FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
 
 
 /* ******************************************************************************** */
-/* Nome do metodo:          PID                                                     */
+/* Nome do metodo:          pidControl                                              */
 /* Descrição:                - Rotina de Controle para um determinado eixo          */
 /*                                                                                  */
 /*                                                                                  */
@@ -124,7 +124,7 @@ void FlightControl::pidControl(processedMpu imu)
 
 //Sinal de saida do PID e atualização do erro previo
 
-    _fpidCalculated = _gains.fkp*ferror_temp + _fimem + _gains.fkd*(ferror_temp - _ferror_previous); 
+    _fpidCalculated = _gains.fkp*ferror_temp + _fimem + _gains.fkd*(ferror_temp - _ferrorPrevious); 
     
 //limitando o limite de ajuste possível
 
@@ -135,7 +135,7 @@ void FlightControl::pidControl(processedMpu imu)
     _fpidCalculated = PIDMAX * -1;
   }
 
-    _ferror_previous = ferror_temp;
+    _ferrorPrevious = ferror_temp;
 }
 
 /* ******************************************************************************** */
@@ -188,7 +188,7 @@ void FlightControl::setKp(float kp){
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:          setKp                                                   */
+/* Nome do metodo:          setKd                                                   */
 /* Descrição:                - Seta um novo valor para o ganho do controlador       */
 /*                             derivativo                                           */
 /*                                                                                  */
@@ -204,11 +204,11 @@ void FlightControl::setKd(float kd){
 }
 
 /* ******************************************************************************** */
-/* Nome do metodo:          setKp                                                   */
+/* Nome do metodo:          setKi                                                   */
 /* Descrição:                - Seta um novo valor para o ganho do controlador       */
 /*                             integrativo                                          */
 /*                                                                                  */
-/* Parametros de entrada: float kd                                                  */
+/* Parametros de entrada: float ki                                                  */
 /*                                                                                  */
 /* Parametros de saida: Nenhum (Vazio)                                              */
 /*                                                                                  */
@@ -240,8 +240,8 @@ void FlightControl::setSetPoint(float newSetPoint){
 
 /* ******************************************************************************** */
 /* Nome do metodo:          getSetPoint                                             */
-/* Descrição:                - Seta um novo valor para o setPoint do controlador    */
-/*                             de velocidade                                        */
+/* Descrição:                - Consulta o atual valor para o setPoint do controlador*/
+/*                                                                                  */
 /*                                                                                  */
 /* Parametros de entrada: Nenhum (Vazio)                                            */
 /*                                                                                  */
@@ -249,14 +249,40 @@ void FlightControl::setSetPoint(float newSetPoint){
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */
+
 float FlightControl::getSetPoint(){ 
   return _setPoint;
 }
+
+/* ******************************************************************************** */
+/* Nome do metodo:          getAccError                                             */
+/* Descrição:                - Consulta o erro acumulado do controlador             */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de entrada: Nenhum (Vazio)                                            */
+/*                                                                                  */
+/* Parametros de saida: float _fimem                                                */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
 
 float FlightControl::getAccError(){
     return _fimem;
 }
 
+
+/* ******************************************************************************** */
+/* Nome do metodo:          getPreviousError                                        */
+/* Descrição:                - Consulta o erro previo  do controlador               */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de entrada: Nenhum (Vazio)                                            */
+/*                                                                                  */
+/* Parametros de saida: float _ferrorPrevious                                       */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
+
 float FlightControl::getPreviousError(){
-    return _ferror_previous;
+    return _ferrorPrevious;
 }

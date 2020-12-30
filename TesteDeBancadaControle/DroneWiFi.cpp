@@ -255,16 +255,16 @@ void DroneWiFi::processComm(String msg)
     /*Caso '8' diminui velocidade de pitch*/
     case '8':
       _joystickSetpoints.pitch  -= VEL_INC;
-      if(_joystickSetpoints.pitch <= -10)
-        _joystickSetpoints.pitch = -10;
+      if(_joystickSetpoints.pitch <= -30)
+        _joystickSetpoints.pitch = -30;
      
       break;
 
     /*Caso '2' aumenta velocidade de pitch*/
     case '2':
       _joystickSetpoints.pitch  += VEL_INC;
-      if(_joystickSetpoints.pitch >= 10)
-        _joystickSetpoints.pitch = 10;
+      if(_joystickSetpoints.pitch >= 30)
+        _joystickSetpoints.pitch = 30;
       break;
 
     /*Caso '8' aumenta velocidade de roll*/

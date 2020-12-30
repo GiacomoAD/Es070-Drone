@@ -1,13 +1,21 @@
+/*****************************************************************************\
+ * Descrição: Main para testes em bancada de calibração do controlador PID   *
+ * do Drone                                                                  *
+ * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo                      *                    
+ * Ultima Atualização: 30/12/2020                                            *
+******************************************************************************/
+
 #include "DroneWiFi.h"
 #include "IMU.h"
 #include "DroneTimer.h"
 #include "FlightControl.h"
 #include "ThrottleControl.h"
 
-#define FREQUENCY 900
+#define FREQUENCY 1000
 #define TRIGGER_200MS FREQUENCY/5
 #define TRIGGER_100MS FREQUENCY/10
-#define TRIGGER_CONTROL   FREQUENCY/225
+#define TRIGGER_500MS FREQUENCY/2
+#define TRIGGER_CONTROL   FREQUENCY/250
 
 int         sent_counter  =   0;
 char*       message       = (char*)calloc(1024, sizeof(char));
@@ -56,7 +64,7 @@ void IRAM_ATTR time_count(){
   if(imu_trigger == 0)
     imu_trigger = 1;
 
-  if(counterWifi >= TRIGGER_100MS){
+  if(counterWifi >= TRIGGER_500MS){
     counterWifi = 0;
     wifi_trigger = 1;
   }
@@ -76,7 +84,6 @@ void setup() {
   delay(10);
 
   quadcopter.initializeMotors(27,14,16,17);
-
   delay(5000);
 
   timer.initTimer(FREQUENCY, time_count);
@@ -155,19 +162,14 @@ void loop() {
       //Atualiza as variaveis relacionadas ao ganho do controlador de Pitch, quando o usuario insere este comando
       desiredGains.kp = wifi.getPIDGains('p').kp;
       desiredGains.ki = wifi.getPIDGains('p').ki;
-      Serial.println("KI Desejado");
-      Serial.println(desiredGains.ki);
       desiredGains.kd = wifi.getPIDGains('p').kd;
       pitchVelPid.setKp(desiredGains.kp);
       pitchVelPid.setKd(desiredGains.kd);
       pitchVelPid.setKi(desiredGains.ki);
-      Serial.println("Velocidade em Pitch");
-      Serial.println(imu.getData().GyY);
-      Serial.println("KI");
-      Serial.println(pitchVelPid.getGains().fki);
       
     }
   
+  //Consulta o sinal de pwm enviado pela ultima vez aos motores
     vel1 = quadcopter.getActualVel()[0]; 
     vel2 = quadcopter.getActualVel()[1];
     vel3 = quadcopter.getActualVel()[2]; 
@@ -194,7 +196,9 @@ void loop() {
             quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,1000,1000);
             delay(5000);   
         } 
+        //Atualiza o sinal de saida do controle PID necessário para a velocidade em pitch
         pitchVelPid.pidControl(imu.getData());
+        //Envia o sinal de controle para atualizar a potencia dos motores necessária para o movimento de Pitch 
         quadcopter.SingleAxisVelControl(pitchVelPid);
  
   }
