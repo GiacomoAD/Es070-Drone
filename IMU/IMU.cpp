@@ -228,6 +228,7 @@ mpu IMU::readRawMPU()
 
   led_state = !led_state;
   digitalWrite(LED_BUILTIN, led_state);         // pisca LED do NodeMCU a cada leitura do sensor
+
   return _rawData;                                        
 }
 
@@ -423,8 +424,33 @@ void IMU::filterMPUData( ){
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
 void IMU::update(){
+  
+  unsigned char aux = 0;
+  float auxRollVel = 0;
+  float auxPitchVel = 0;
+  
   readRawMPU();
   processMPUData();
+
+
+  if(_meanPos == 49){
+    _meanPos = 0;
+  }
+
+  _roll_vel[_meanPos] = _processedData.GyX;
+  _pitch_vel[_meanPos] = _processedData.GyY;
+
+  while(aux != 50){
+    auxRollVel  += _roll_vel[aux];
+    auxPitchVel += _pitch_vel[aux];
+    aux++;
+  }
+
+  _meanVel.Roll = auxRollVel/50;
+  _meanVel.Pitch = auxPitchVel/50;
+
+  _meanPos++;
+
 }
 
 
@@ -467,6 +493,19 @@ angles IMU::getRawAngles(){
 /* ************************************************************************************ */
 processedAngles IMU::getRotations(){
   return _procAng;
+}
+
+/* ************************************************************************************ */
+/* Method's name:          getGyroVel                                                   */ 
+/* Description:            Returns the velocity mean from the gyroscope sensor          */
+/*                         on Roll, Pitch and Yaw                                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      gyroVel -> internal mean velocities struct                   */
+/* ************************************************************************************ */ 
+gyroVel IMU::getGyroVel(){
+  return _meanVel;
 }
 
 

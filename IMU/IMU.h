@@ -60,6 +60,13 @@ typedef struct processedAngles
   float Yaw = 0;
 };
 
+typedef struct gyroVel
+{
+  float Roll = 0;
+  float Pitch = 0;
+  float Yaw = 0;
+};
+
 class IMU
 {
 public:
@@ -128,6 +135,17 @@ public:
 /* ************************************************************************************ */ 
  processedAngles getRotations();
 
+
+/* ************************************************************************************ */
+/* Method's name:          getGyroVel                                                   */ 
+/* Description:            Returns the velocity mean from the gyroscope sensor          */
+/*                         on Roll, Pitch and Yaw                                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      gyroVel -> internal mean velocities struct                   */
+/* ************************************************************************************ */ 
+gyroVel getGyroVel();
 
 /* ************************************************************************************ */
 /* Method's name:          CalibrateGyro                                                */ 
@@ -323,6 +341,13 @@ private:
    
   unsigned char led_state = 0;
   unsigned char debbuging_enabled = 1;
+
+  unsigned char _meanPos = 0;
+  float _roll_vel[50] = {0};
+  float _pitch_vel[50] = {0};
+
+  gyroVel _meanVel;
+
 };
  
 #endif
