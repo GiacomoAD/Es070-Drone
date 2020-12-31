@@ -68,17 +68,18 @@ class FlightControl
     FlightControl(float fkp, float fki, float fkd, char Axis);
 
 /* ******************************************************************************** */
-/* Nome do metodo:          pidControl                                              */
-/* Descrição:                - Rotina de Controle para um determinado eixo          */
+/* Nome do metodo:          pidVelControl                                           */
+/* Descrição:                - Rotina de Controle de velocidade                     */
+/*                          para um determinado eixo                                */
 /*                                                                                  */
 /*                                                                                  */
-/* Parametros de entrada: (IMU imu) Objeto que contem os valores lidos da IMU       */
-/*                        que será dado como entrada pro controlador                */
+/* Parametros de entrada: (gyroVel imu) Objeto que contem os valores medios         */
+/*  de velocidade lidos da IMU que será dado como entrada pro controlador           */
 /* Parametros de saida: Nenhum (Vazio)                                              */
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void pidControl(processedMpu imu);
+    void pidVelControl(gyroVel imu);
 
 /* ******************************************************************************** */
 /* Nome do metodo:          getPID_Calculated                                       */

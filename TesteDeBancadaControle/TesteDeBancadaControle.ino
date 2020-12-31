@@ -11,11 +11,11 @@
 #include "FlightControl.h"
 #include "ThrottleControl.h"
 
-#define FREQUENCY 1000
+#define FREQUENCY 4000
 #define TRIGGER_200MS FREQUENCY/5
-#define TRIGGER_100MS FREQUENCY/10
-#define TRIGGER_500MS FREQUENCY/2
-#define TRIGGER_CONTROL   FREQUENCY/250
+#define TRIGGER_100MS FREQUENCY/40
+#define TRIGGER_500MS FREQUENCY/2000
+#define TRIGGER_CONTROL   FREQUENCY/16
 
 int         sent_counter  =   0;
 char*       message       = (char*)calloc(1024, sizeof(char));
@@ -64,7 +64,7 @@ void IRAM_ATTR time_count(){
   if(imu_trigger == 0)
     imu_trigger = 1;
 
-  if(counterWifi >= TRIGGER_500MS){
+  if(counterWifi >= TRIGGER_100MS){
     counterWifi = 0;
     wifi_trigger = 1;
   }
@@ -175,7 +175,7 @@ void loop() {
     vel3 = quadcopter.getActualVel()[2]; 
     vel4 = quadcopter.getActualVel()[3];
    
-    sprintf(message, "M1:%d\tM2:%d\tM3:%d\tM4:%d\n Vel P: %0.2f Angulo P: %0.2f Kp: %0.2f Kd: %0.2f Ki: %0.2f \0",vel1,vel2,vel3,vel4, imu.getData().GyY, imu.getRotations().Pitch, pitchVelPid.getGains().fkp, pitchVelPid.getGains().fkd, pitchVelPid.getGains().fki);
+    sprintf(message, "M1:%d\tM2:%d\tM3:%d\tM4:%d || SetPoint: %0.3f || Erro: %0.3f \n Vel P: %0.3f Angulo P: %0.3f Kp: %0.3f Kd: %0.3f Ki: %0.3f \0",vel1,vel2,vel3,vel4, pitchVelPid.getSetPoint(), pitchVelPid.getPreviousError(), imu.getGyroVel().Pitch, imu.getRotations().Pitch, pitchVelPid.getGains().fkp, pitchVelPid.getGains().fkd, pitchVelPid.getGains().fki);
     wifi.sendData(message);
     message[0] = '\0';
     sent_counter++;
@@ -197,7 +197,7 @@ void loop() {
             delay(5000);   
         } 
         //Atualiza o sinal de saida do controle PID necessário para a velocidade em pitch
-        pitchVelPid.pidControl(imu.getData());
+        pitchVelPid.pidVelControl(imu.getGyroVel());
         //Envia o sinal de controle para atualizar a potencia dos motores necessária para o movimento de Pitch 
         quadcopter.SingleAxisVelControl(pitchVelPid);
  

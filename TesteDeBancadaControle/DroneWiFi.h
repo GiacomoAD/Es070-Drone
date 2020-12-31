@@ -21,7 +21,7 @@
 #define SSID_GUS "Guslifer-Wifi"
 #define PASS_GUS "12345678"
 
-#define VEL_INC 10
+#define VEL_INC 3
 #define THROTTLE_INC 10
 
 typedef struct droneParams

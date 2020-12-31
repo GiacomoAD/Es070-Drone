@@ -200,8 +200,8 @@ void ThrottleControl::SingleAxisVelControl(FlightControl pidPitch){
 
 
      //Calcula as compensações em cada motor para manter o controle de apenas um dos eixos de movimentação (pitch)
-    desiredVel1 = _throttle  - pidPitch.getPID_Calculated() ;
-    desiredVel2 = _throttle  + pidPitch.getPID_Calculated() ;
+    desiredVel1 = (_throttle +10)  - pidPitch.getPID_Calculated() ;
+    desiredVel2 = _throttle   + pidPitch.getPID_Calculated() ;
 
     //Vamos saturar as velocidades maximas em cada motor
     if(desiredVel1 > MAXTHROTTLE){

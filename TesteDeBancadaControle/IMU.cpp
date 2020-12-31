@@ -228,6 +228,7 @@ mpu IMU::readRawMPU()
 
   led_state = !led_state;
   digitalWrite(LED_BUILTIN, led_state);         // pisca LED do NodeMCU a cada leitura do sensor
+
   return _rawData;                                        
 }
 
@@ -286,17 +287,26 @@ mpu IMU::getRawData(){
 /* ************************************************************************************ */
 processedMpu IMU::processMPUData(){
 
+  /*Convertendo o dado lido do MPU-6050 de acordo com a
+  sensibilidade do giroscopio*/
   _processedData.GyX = (float)(_rawData.GyX - calGyX)/131;
   _processedData.GyY = (float)(_rawData.GyY - calGyY)/131;
   _processedData.GyZ = (float)(_rawData.GyZ - calGyZ)/131;
 
+  /*Convertendo o dado lido do MPU-6050 de acordo com a
+  sensibilidade do acelerometro*/
   _processedData.AcX = (float)(_rawData.AcX - calAcX)/16384;
   _processedData.AcY = (float)(_rawData.AcY- calAcY)/16384;
   _processedData.AcZ = (float)_rawData.AcZ/16384;
 
+  /*Utilizando as informacoes de velocidade angular e aceleracao
+  para calcular a posicao angular*/
+  processAngles(_processedData);
+
+  /*Dado de temperatura da MPU-6050*/
   _processedData.Tmp = (float)_rawData.Tmp;
 
-  processAngles(_processedData);
+  
 
   return _processedData;
 }
@@ -313,43 +323,66 @@ processedMpu IMU::processMPUData(){
 void IMU::processAngles(processedMpu dados){
 
   unsigned long aux = micros();
-  float dt = (float)(aux - _lastTimestamp)/1000000;
   float x2, y2, z2, result;
+
+  /*Calculo do tempo percorrido desde a ultima medida*/
+  float dt = (float)(aux - _lastTimestamp)/1000000;
+
+  /*Guardando o tempo desta medida*/
   _lastTimestamp = aux;
 
   //Serial.println(dt);
 
+  /*Posicao angular medida somente pela integracao da velocidade*/
+  _gyroPitch += _processedData.GyX*dt;  //Angulo de Pitch
+  _gyroRoll  += _processedData.GyY*dt;  //Angulo de Roll
+
+  /*Valores da ultima iteracao dos angulos*/
   _ang.GyPitch = _procAng.Pitch;
   _ang.GyRoll  = _procAng.Roll;
   _ang.GyYaw   = _procAng.Yaw;
   
+  /*Posicao angular atraves da integracao da velocidade
+  considerando a ultima iteracao*/
   _ang.GyPitch  += _processedData.GyX*dt; //MPU eixo X
+
+  /*Compensacao de giro em Yaw na posicao angular*/
   _ang.GyPitch  += _ang.GyRoll*sin(_ang.GyYaw*dt*DEG_2_RAD);
 
+   /*Posicao angular atraves da integracao da velocidade
+  considerando a ultima iteracao*/
   _ang.GyRoll   += _processedData.GyY*dt; //MPU eixo Y
+  /*Compensacao de giro em Yaw na posicao angular*/
   _ang.GyRoll   -= _ang.GyPitch*sin(_ang.GyYaw*dt*DEG_2_RAD);
   
   _ang.GyYaw    += _processedData.GyZ*dt; //MPU eixo Z
-
   
 /*
   Serial.printf("Acelerometer INPUT:\t %f\t%f\t%f\n",_processedData.AcX, _processedData.AcY, _processedData.AcZ);
 */
+
+  /*CALCULO DA POSICAO ANGULAR ATRAVES DO ACELEROMETRO*/
+
+  /*Elevando os dados ao quadrado*/
   x2 = _processedData.AcX*_processedData.AcX;
   y2 = _processedData.AcY*_processedData.AcY;
   z2 = _processedData.AcZ*_processedData.AcZ;
 
+  /*Decomposicao do vetor da gravidade*/
   //Pitch
   result = sqrt(x2+z2);
+  /*Arco-Tangente para encontra o angulo apos decomposicao*/
   _ang.AclPitch = -1*atan2(-1*_processedData.AcY, result)*RAD_2_DEG;
 
   //Roll
+  /*Arco-Tangente para encontra o angulo apos decomposicao*/
   _ang.AclRoll  = -1*atan2(_processedData.AcX, _processedData.AcZ)*RAD_2_DEG;
 
+  /*Aplicacao do filtro complementar para obter o angulo final*/
   filterMPUData();
 
   if(debbuging_enabled)
-    Serial.printf("Gyro:%f\tAccl:%f\tCompl:%f\n",_ang.GyRoll, _ang.AclRoll, _procAng.Roll);
+    Serial.printf("%f,%f,%f\n",_gyroRoll, _ang.AclRoll, _procAng.Roll);
 
 /*
   Serial.printf("ANGULOS GIROSCOPIO:\nROLL:%f\tPITCH:%f\t%YAW:%f\n",_ang.GyRoll, _ang.GyPitch, _ang.GyYaw);
@@ -370,6 +403,8 @@ void IMU::processAngles(processedMpu dados){
 /* ************************************************************************************ */
 void IMU::filterMPUData( ){
 
+  /*Atribuindo 'pesos' do filtro para as medidas de cada sensor
+  e construindo o sinal final.*/
   _procAng.Roll   =   CF_GY*_ang.GyRoll + CF_AC*_ang.AclRoll;
   _procAng.Pitch  =   CF_GY*_ang.GyPitch + CF_AC*_ang.AclPitch;
   _procAng.Yaw    =   _ang.GyYaw;
@@ -389,8 +424,33 @@ void IMU::filterMPUData( ){
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
 void IMU::update(){
+  
+  unsigned char aux = 0;
+  float auxRollVel = 0;
+  float auxPitchVel = 0;
+  
   readRawMPU();
   processMPUData();
+
+
+  if(_meanPos == 49){
+    _meanPos = 0;
+  }
+
+  _roll_vel[_meanPos] = _processedData.GyY;
+  _pitch_vel[_meanPos] = _processedData.GyX;
+
+  while(aux != 50){
+    auxRollVel  += _roll_vel[aux];
+    auxPitchVel += _pitch_vel[aux];
+    aux++;
+  }
+
+  _meanVel.Roll = auxRollVel/50;
+  _meanVel.Pitch = auxPitchVel/50;
+
+  _meanPos++;
+
 }
 
 
@@ -433,6 +493,19 @@ angles IMU::getRawAngles(){
 /* ************************************************************************************ */
 processedAngles IMU::getRotations(){
   return _procAng;
+}
+
+/* ************************************************************************************ */
+/* Method's name:          getGyroVel                                                   */ 
+/* Description:            Returns the velocity mean from the gyroscope sensor          */
+/*                         on Roll, Pitch and Yaw                                       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      gyroVel -> internal mean velocities struct                   */
+/* ************************************************************************************ */ 
+gyroVel IMU::getGyroVel(){
+  return _meanVel;
 }
 
 

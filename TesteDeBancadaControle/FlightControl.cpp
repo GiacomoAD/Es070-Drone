@@ -85,7 +85,7 @@ FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
 /* ******************************************************************************** */
 
 
-void FlightControl::pidControl(processedMpu imu)
+void FlightControl::pidVelControl(gyroVel imu)
 {
 //YAW = Z
 //ROLL = Y
@@ -97,13 +97,13 @@ void FlightControl::pidControl(processedMpu imu)
     switch (_axis)
     {
     case 'r':
-        fgyro = imu.GyY;
+        fgyro = imu.Roll;
         break;
     case 'p':
-        fgyro = imu.GyX;
+        fgyro = imu.Pitch;
         break;
     case 'y':
-        fgyro = imu.GyZ;
+        fgyro = imu.Yaw;
     default:
         break;
     }
