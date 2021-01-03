@@ -269,6 +269,23 @@ void loop() {
     /**********************************/
     /*INSERIR ROTINA DE SEGURANCA AQUI*/
     /**********************************/
+
+    //Testa se o drone está com a velocidade angular em algum dos eixos (Pitch e Roll) acima do permitido
+    if( ((imu.getData().GyY >= 50) || imu.getData().GyY <= -50)) || ((imu.getData().GyX >= 50) || imu.getData().GyX <= -50)) {
+    //Caso esteja na velocidade angular maxima, deve establizar com velocidade nula no eixo
+        pitchVelPid.setSetPoint(0);
+        rollVelPid.setSetPoint(0);
+        quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE00);
+        delay(5000);   
+    }
+
+    //Testa se o drone está com angulação acima do permitido
+    if( ((rotations.Roll >= 40) || rotations.Roll <= -40)) || ((rotations.Pitch >= 40) || rotations.Pitch <= -40)) {
+    //Caso esteja acima da posição angular maxima, deve establizar com velocidade nula no eixo
+        pitchVelPid.setSetPoint(0);
+        quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE);
+        delay(5000);   
+    } 
     
     /*Atualiza o sinal de saida do controle PID necessário para a velocidade em roll*/
     rollVelPid.pidVelControl(imu);
