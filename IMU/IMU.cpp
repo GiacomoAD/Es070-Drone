@@ -433,35 +433,50 @@ void IMU::update(){
   processMPUData();
 
 
-  if(_meanPos == 49){
+  /*if(_meanPos == 9){
     _meanPos = 0;
   }
 
   _roll_vel[_meanPos] = _processedData.GyY;
   _pitch_vel[_meanPos] = _processedData.GyX;
 
-  while(aux != 50){
+  while(aux != 10){
     auxRollVel  += _roll_vel[aux];
     auxPitchVel += _pitch_vel[aux];
     aux++;
   }
 
-  _meanVel.Roll = auxRollVel/50;
-  _meanVel.Pitch = auxPitchVel/50;
+  _meanVel.Roll = auxRollVel/10;
+  _meanVel.Pitch = auxPitchVel/10;
 
-  _meanPos++;
+  _meanPos++;*/
 
   _gyroRollInput = (_gyroRollInput*0.8) + (_processedData.GyY*0.2);
   _gyroPitchInput = (_gyroPitchInput*0.8) + (_processedData.GyX*0.2);
 
 }
 
-
+/* ************************************************************************************ */
+/* Method's name:          getPitchVel                                                  */ 
+/* Description:            Returns gyro pitch velocity after complementary filter       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      float -> Pitch velocity                                      */
+/* ************************************************************************************ */
 float IMU::getPitchVel(){
   return _gyroPitchInput;
 
 }
 
+/* ************************************************************************************ */
+/* Method's name:          getRollVel                                                   */ 
+/* Description:            Returns gyro roll velocity after complementary filter        */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      float -> Roll velocity                                       */
+/* ************************************************************************************ */
 float IMU::getRollVel(){
   return _gyroRollInput;
 
