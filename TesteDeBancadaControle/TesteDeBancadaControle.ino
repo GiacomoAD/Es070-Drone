@@ -13,7 +13,8 @@
 
 #define FREQUENCY 1000
 #define TRIGGER_100MS FREQUENCY/10
-#define TRIGGER_CONTROL   FREQUENCY/250
+#define TRIGGER_1S FREQUENCY
+#define TRIGGER_CONTROL FREQUENCY/250
 
 int         sent_counter  =   0;
 char*       message       = (char*)calloc(1024, sizeof(char));
@@ -22,11 +23,13 @@ String      command       = "";
 //Variaveis para contabilizar quanto falta para o trigger de cada tarefa
 volatile unsigned char counterWifi = 0;
 volatile unsigned char counterControl = 0;
+int counterTest = 0;
 
 //Variaveis de Trigger de cada tarefa
-unsigned char control_trigger = 0;
-unsigned char wifi_trigger = 0;
-unsigned char imu_trigger = 0;
+volatile unsigned char control_trigger = 0;
+volatile unsigned char wifi_trigger = 0;
+volatile unsigned char imu_trigger = 0;
+volatile unsigned char test_trigger = 0;
 
 int* actualVel = (int*) calloc(3, sizeof(int));
 int vel1, vel2, vel3, vel4;
@@ -37,7 +40,7 @@ pidGains desiredGains;
 DroneTimer timer;
 DroneWiFi wifi;
 IMU imu;
-FlightControl pitchVelPid(0.5f, 0.8f, 0.9f , 'p');
+FlightControl pitchVelPid(1.5f, 0.0125f, 1.4f , 'p');
 ThrottleControl quadcopter;
 
 
@@ -57,10 +60,16 @@ droneParams prm ;
 rotVel setpoints;
 float addTrottleTemp;
 
+
+int testeEnable = 1;
+int prepare = 1;
+int testing = 0;
+
 void IRAM_ATTR time_count(){
 
   counterControl++;
   counterWifi++;
+  counterTest++;
  
 
   if(counterWifi >= TRIGGER_100MS){
@@ -73,10 +82,13 @@ void IRAM_ATTR time_count(){
       control_trigger = 1;   
       imu_trigger = 1;
   }
+
+  if(counterTest >= TRIGGER_1S){ 
+    counterTest = 0;
+    test_trigger = 1;
+  }
   
 }
-
-
 
 
 void setup() {
@@ -88,6 +100,7 @@ void setup() {
 
   timer.initTimer(FREQUENCY, time_count);
   imu.initMPU();
+  imu.disableDebug();
 
 //  wifi.disable_debug();
   wifi.initWiFi(SSID_GUS, PASS_GUS, IP_GIA, PORT);
@@ -95,7 +108,6 @@ void setup() {
   setpoints = wifi.getVel();
   delay(10);
   timer.enableTimer();
-
 
   while(calibrar < 2000){
     if(imu_trigger){
@@ -128,19 +140,36 @@ void setup() {
 void loop() { 
 
   //Rotina de teste de controle da velocidade
+  if(testeEnable){ 
+    //  SetPoint de VelPitch = -10 para preparar para o teste
+    if(prepare) pitchVelPid.setSetPoint(-10);
+     //  Atingiu -35 graus, SetPoint de VelPitch = 10;
+    if((imu.getRotations().Pitch >= -35 && imu.getRotations().Pitch <= -33) && testing == 0 ){
+        if(prepare){
+        //terminou de preparar para teste e vai começar a rotina de teste, garante que vai esperar 1 segundo
+          counterTest = 0;
+          test_trigger = 0;
+          prepare = 0;
+          pitchVelPid.setSetPoint(0);
+          Serial.println("\n ***********Posição incial para teste atingida********** ");
+        }
 
-//  SetPoint de VelPitch = -10 
-//  Atingiu -35 graus, SetPoint de VelPitch = 0; 
-//  SetPoint de VelPitch = 10;
-//  SerialPrint VelAtual, Angulo Atual em função do tempo (a cada  100ms) 
-//  Atingiu 35 graus, SetPoint de VelPitch = 0;
+        if( (prepare == 0) && (test_trigger == 1)){ 
+          pitchVelPid.setSetPoint(10);
+          test_trigger = 0;
+          testing = 1;
+          Serial.println("\n ***********Iniciando teste de controle de velocidade!********** ");
+        } 
+    }
+    //  Atingiu 35 graus, SetPoint de VelPitch = 0;
+    if(imu.getRotations().Pitch <= 35 && imu.getRotations().Pitch >= 33 ) {
+        prepare = 0;
+        testing = 0;
+        testeEnable = 0;
+        Serial.println("\n ***********Finalizando teste de controle de velocidade!********** ");
+    }
+  }
 
-
-
-
-
-
-  
 
   actualVel = quadcopter.getActualVel();
   vel1 = actualVel[0];
@@ -157,23 +186,27 @@ void loop() {
       wifi.processComm((String)command);
       
       //Armazena as velocidades desejadadas de pitch, roll, yaw e throttle desejadas pelo cliente wifi
-      setpoints = wifi.getVel();
-
-      //Atualiza o setpoint de velocidade angular de pitch
-      pitchVelPid.setSetPoint(setpoints.pitch);
-      
+      setpoints = wifi.getVel();    
       
       //Atualiza potencia dos motores baseado no comando do joystick
       addTrottleTemp = (((float)(setpoints.throttle)/100)+1)*MOTORTHROTTLE;
       quadcopter.setThrottle(addTrottleTemp);
 
-      //Atualiza as variaveis relacionadas ao ganho do controlador de Pitch, quando o usuario insere este comando
-      desiredGains.kp = wifi.getPIDGains('p').kp;
-      desiredGains.ki = wifi.getPIDGains('p').ki;
-      desiredGains.kd = wifi.getPIDGains('p').kd;
-      pitchVelPid.setKp(desiredGains.kp);
-      pitchVelPid.setKd(desiredGains.kd);
-      pitchVelPid.setKi(desiredGains.ki);
+      
+      //Só atualiza caso nao esteja em modo teste
+      if(testeEnable == 0){
+        //Atualiza as variaveis relacionadas ao ganho do controlador de Pitch, quando o usuario insere este comando
+        desiredGains.kp = wifi.getPIDGains('p').kp;
+        desiredGains.ki = wifi.getPIDGains('p').ki;
+        desiredGains.kd = wifi.getPIDGains('p').kd;
+        pitchVelPid.setKp(desiredGains.kp);
+        pitchVelPid.setKd(desiredGains.kd);
+        pitchVelPid.setKi(desiredGains.ki);
+
+
+        //Atualiza o setpoint de velocidade angular de pitch
+        pitchVelPid.setSetPoint(setpoints.pitch);
+      }
       
     }
   
@@ -212,5 +245,13 @@ void loop() {
         //Envia o sinal de controle para atualizar a potencia dos motores necessária para o movimento de Pitch 
         quadcopter.SingleAxisVelControl(pitchVelPid);
  
+
+      //Se estiver dentro da rotina de teste, deve printar os valores de velocidade atual e de angulo
+    if(testing){ 
+      Serial.print(imu.getPitchVel());
+      Serial.print(";");
+      Serial.print(imu.getRotations().Pitch);
+      Serial.print("\n");
+    }
   }
 }
