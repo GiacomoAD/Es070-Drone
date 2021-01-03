@@ -35,6 +35,7 @@ class ThrottleControl
     Servo _m3;
     Servo _m4;
     int _throttle;
+    int* _actualVel;
     
   public:
 /* ******************************************************************************** */

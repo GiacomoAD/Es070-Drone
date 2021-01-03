@@ -79,7 +79,7 @@ class FlightControl
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void pidVelControl(gyroVel imu);
+    void pidVelControl(IMU  imu);
 
 /* ******************************************************************************** */
 /* Nome do metodo:          getPID_Calculated                                       */

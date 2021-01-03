@@ -3,7 +3,7 @@
 /* File description: MPU-6050 interface header file                  */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    15dec2020                                       */
+/* Revision date:    02jan2021                                       */
 /* ***************************************************************** */
 
  
@@ -146,6 +146,26 @@ public:
 /* Return parameters:      gyroVel -> internal mean velocities struct                   */
 /* ************************************************************************************ */ 
 gyroVel getGyroVel();
+
+/* ************************************************************************************ */
+/* Method's name:          getPitchVel                                                  */ 
+/* Description:            Returns gyro pitch velocity after complementary filter       */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      float -> Pitch velocity                                      */
+/* ************************************************************************************ */
+float getPitchVel();
+
+/* ************************************************************************************ */
+/* Method's name:          getRollVel                                                   */ 
+/* Description:            Returns gyro roll velocity after complementary filter        */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      float -> Roll velocity                                       */
+/* ************************************************************************************ */
+float getRollVel();
 
 /* ************************************************************************************ */
 /* Method's name:          CalibrateGyro                                                */ 
@@ -332,6 +352,8 @@ private:
 
   float _gyroRoll = 0;
   float _gyroPitch = 0;
+  float _gyroRollInput = 0;
+  float _gyroPitchInput = 0;
   
 
   unsigned long _lastTimestamp = 0;

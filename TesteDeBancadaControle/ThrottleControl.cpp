@@ -21,6 +21,7 @@
 ThrottleControl::ThrottleControl() 
 { 
   Serial.println("Objeto de Drone Criado!");
+  _actualVel = (int*) calloc(3, sizeof(int));
 }
 
 /* ******************************************************************************** */
@@ -92,14 +93,13 @@ void ThrottleControl::setActualVel(int desiredVel1, int desiredVel2, int desired
 
 
 int* ThrottleControl::getActualVel(){ 
-    int* ActualVel = (int*) calloc(3, sizeof(int));
 
-    ActualVel[0] = 1000 + (5.555* _m1.read());
-    ActualVel[1] = 1000 + (5.555* _m2.read());
-    ActualVel[2] = 1000 + (5.555* _m3.read());
-    ActualVel[3] = 1000 + (5.555* _m4.read());
+    _actualVel[0] = 1000 + (5.555* _m1.read());
+    _actualVel[1] = 1000 + (5.555* _m2.read());
+    _actualVel[2] = 1000 + (5.555* _m3.read());
+    _actualVel[3] = 1000 + (5.555* _m4.read());
 
-    return ActualVel;
+    return _actualVel;
 }
 
 /* ******************************************************************************** */
@@ -150,7 +150,6 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
 
     int vel1, vel2, vel3, vel4;
     int desiredVel1, desiredVel2, desiredVel3, desiredVel4;
-    int* actualVel = (int*) calloc(3, sizeof(int));
 
 
 
@@ -200,8 +199,8 @@ void ThrottleControl::SingleAxisVelControl(FlightControl pidPitch){
 
 
      //Calcula as compensações em cada motor para manter o controle de apenas um dos eixos de movimentação (pitch)
-    desiredVel1 = (_throttle +10)  - pidPitch.getPID_Calculated() ;
-    desiredVel2 = _throttle   + pidPitch.getPID_Calculated() ;
+    desiredVel1 = _throttle  - pidPitch.getPID_Calculated() ;
+    desiredVel2 = _throttle  + pidPitch.getPID_Calculated() ;
 
     //Vamos saturar as velocidades maximas em cada motor
     if(desiredVel1 > MAXTHROTTLE){
