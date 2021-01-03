@@ -437,8 +437,8 @@ void IMU::update(){
     _meanPos = 0;
   }
 
-  _roll_vel[_meanPos] = _processedData.GyX;
-  _pitch_vel[_meanPos] = _processedData.GyY;
+  _roll_vel[_meanPos] = _processedData.GyY;
+  _pitch_vel[_meanPos] = _processedData.GyX;
 
   while(aux != 50){
     auxRollVel  += _roll_vel[aux];
@@ -451,8 +451,21 @@ void IMU::update(){
 
   _meanPos++;
 
+  _gyroRollInput = (_gyroRollInput*0.8) + (_processedData.GyY*0.2);
+  _gyroPitchInput = (_gyroPitchInput*0.8) + (_processedData.GyX*0.2);
+
 }
 
+
+float IMU::getPitchVel(){
+  return _gyroPitchInput;
+
+}
+
+float IMU::getRollVel(){
+  return _gyroRollInput;
+
+}
 
 /* ************************************************************************************ */
 /* Method's name:          getData                                                      */ 

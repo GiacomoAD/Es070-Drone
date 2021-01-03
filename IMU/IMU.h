@@ -147,6 +147,11 @@ public:
 /* ************************************************************************************ */ 
 gyroVel getGyroVel();
 
+
+float getPitchVel();
+
+float getRollVel();
+
 /* ************************************************************************************ */
 /* Method's name:          CalibrateGyro                                                */ 
 /* Description:            Set gyro calibration values for baseline shift               */
@@ -332,6 +337,8 @@ private:
 
   float _gyroRoll = 0;
   float _gyroPitch = 0;
+  float _gyroRollInput = 0;
+  float _gyroPitchInput = 0;
   
 
   unsigned long _lastTimestamp = 0;
