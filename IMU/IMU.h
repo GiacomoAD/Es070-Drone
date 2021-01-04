@@ -224,6 +224,26 @@ float getRollVel();
 /* ************************************************************************************ */
  void disableDebug();
 
+/* ************************************************************************************ */
+/* Method's name:          disableYawComp                                               */ 
+/* Description:            Disables roll and pitch angle compensation using yaw         */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
+ void disableYawComp();
+
+
+/* ************************************************************************************ */
+/* Method's name:          enableYawComp                                                */ 
+/* Description:            Enables roll and pitch angle compensation using yaw          */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
+ void enableYawComp();
  
 private:
 
@@ -362,6 +382,7 @@ private:
   processedAngles _procAng;
    
   unsigned char led_state = 0;
+  unsigned char yaw_compensation = 1;
   unsigned char debbuging_enabled = 1;
 
   unsigned char _meanPos = 0;

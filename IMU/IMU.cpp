@@ -347,13 +347,16 @@ void IMU::processAngles(processedMpu dados){
   _ang.GyPitch  += _processedData.GyX*dt; //MPU eixo X
 
   /*Compensacao de giro em Yaw na posicao angular*/
-  _ang.GyPitch  += _ang.GyRoll*sin(_ang.GyYaw*dt*DEG_2_RAD);
+  if(yaw_compensation)
+    _ang.GyPitch  += _ang.GyRoll*sin(_ang.GyYaw*dt*DEG_2_RAD);
 
    /*Posicao angular atraves da integracao da velocidade
   considerando a ultima iteracao*/
   _ang.GyRoll   += _processedData.GyY*dt; //MPU eixo Y
+
   /*Compensacao de giro em Yaw na posicao angular*/
-  _ang.GyRoll   -= _ang.GyPitch*sin(_ang.GyYaw*dt*DEG_2_RAD);
+  if(yaw_compensation)
+    _ang.GyRoll   -= _ang.GyPitch*sin(_ang.GyYaw*dt*DEG_2_RAD);
   
   _ang.GyYaw    += _processedData.GyZ*dt; //MPU eixo Z
   
@@ -561,3 +564,28 @@ void IMU::enableDebug(){
 void IMU::disableDebug(){
   debbuging_enabled = 0;
 }
+
+/* ************************************************************************************ */
+/* Method's name:          disableYawComp                                               */ 
+/* Description:            Disables roll and pitch angle compensation using yaw         */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
+ void disableYawComp(){
+   yaw_compensation = 0;
+ }
+
+
+/* ************************************************************************************ */
+/* Method's name:          enableYawComp                                                */ 
+/* Description:            Enables roll and pitch angle compensation using yaw          */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      n/a                                                          */
+/* ************************************************************************************ */
+ void enableYawComp(){
+   yaw_compensation = 1;
+ }
