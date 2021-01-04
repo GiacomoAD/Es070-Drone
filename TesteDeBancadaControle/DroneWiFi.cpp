@@ -359,7 +359,7 @@ void DroneWiFi::processComm(String msg)
                 
                 if(msg[i] == ';'){
                   buffer_k[j] = '\0';
-                  Serial.println(buffer_k);
+                  if(debugging_enabled) Serial.println(buffer_k);
 
                   if(k_flag == 1){
                     _pidRoll.kp = atof(buffer_k);
@@ -379,7 +379,7 @@ void DroneWiFi::processComm(String msg)
               }
 
               buffer_k[j] = '\0';
-              Serial.println(buffer_k);
+              if(debugging_enabled) Serial.println(buffer_k);
 
               _pidRoll.kd = atof(buffer_k);
               Serial.println(_pidRoll.kd);

@@ -2,7 +2,7 @@
  * Descrição: Arquivo header para implementação das funções de  
  * interface de controle de velocidade dos motores do Drone
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
- * Ultima Atualização: 18/11/2020
+ * Ultima Atualização: 03/01/2021
 ********************************************************************/
 
 #ifndef ThrottleControl_h
@@ -111,14 +111,14 @@ class ThrottleControl
 /*                                                                                  */
 /*                                                                                  */
 /* Parametros de entrada: FlightControl pidRoll, FlightControl pidPitch,            */
-/*                        FlightControl pidYaw  , que são os objetos                */
-/*                        do controlador implementado para cada eixo                */
+/*                        IMU imu  , que são os objetos  do controlador             */
+/*                        implementado para cada eixo e sensor de inercia           */
 /*                                                                                  */
 /* Parametros de saida:  Vazio (Nenhum)                                             */
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw );
+    void Control(FlightControl pidRoll, FlightControl pidPitch, IMU imu);
 
 /* ******************************************************************************** */
 /* Nome do metodo:         SingleAxisVelControl                                     */

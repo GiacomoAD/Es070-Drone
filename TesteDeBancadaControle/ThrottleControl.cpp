@@ -2,7 +2,7 @@
  * Descrição: Arquivo c++ que implementa a interface de controle        * 
  * de velocidade dos motores do Drone                                   *
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo                 *
- * Ultima Atualização: 30/12/2020                                       *
+ * Ultima Atualização: 03/01/2021                                       *
 *************************************************************************/
 #include "ThrottleControl.h"
 
@@ -146,9 +146,12 @@ void ThrottleControl:: testMotors(){
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw ){ 
+void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU imu){ 
 
-    int vel1, vel2, vel3, vel4;
+    //Executa a atualização do sinal de controle de cada um dos eixos 
+    
+    pidRoll.pidVelControl(imu);
+    pidPitch.pidVelControl(imu);
     int desiredVel1, desiredVel2, desiredVel3, desiredVel4;
 
 
@@ -172,8 +175,6 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
     if(desiredVel4 > MAXTHROTTLE){
       desiredVel4 = MAXTHROTTLE;
     }
-
-    
 
     //Seta a nova velocidade necessária para manter a saida controlada
     setActualVel(desiredVel1, desiredVel2, desiredVel3, desiredVel4);
