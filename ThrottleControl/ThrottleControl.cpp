@@ -2,7 +2,7 @@
  * Descrição: Arquivo c++ que implementa a interface de controle        * 
  * de velocidade dos motores do Drone                                   *
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo                 *
- * Ultima Atualização: 30/12/2020                                       *
+ * Ultima Atualização: 03/01/2021                                       *
 *************************************************************************/
 #include "ThrottleControl.h"
 
@@ -21,6 +21,7 @@
 ThrottleControl::ThrottleControl() 
 { 
   Serial.println("Objeto de Drone Criado!");
+  _actualVel = (int*) calloc(3, sizeof(int));
 }
 
 /* ******************************************************************************** */
@@ -92,14 +93,13 @@ void ThrottleControl::setActualVel(int desiredVel1, int desiredVel2, int desired
 
 
 int* ThrottleControl::getActualVel(){ 
-    int* ActualVel = (int*) calloc(3, sizeof(int));
 
-    ActualVel[0] = 1000 + (5.555* _m1.read());
-    ActualVel[1] = 1000 + (5.555* _m2.read());
-    ActualVel[2] = 1000 + (5.555* _m3.read());
-    ActualVel[3] = 1000 + (5.555* _m4.read());
+    _actualVel[0] = 1000 + (5.555* _m1.read());
+    _actualVel[1] = 1000 + (5.555* _m2.read());
+    _actualVel[2] = 1000 + (5.555* _m3.read());
+    _actualVel[3] = 1000 + (5.555* _m4.read());
 
-    return ActualVel;
+    return _actualVel;
 }
 
 /* ******************************************************************************** */
@@ -146,11 +146,13 @@ void ThrottleControl:: testMotors(){
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, FlightControl pidYaw ){ 
+void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU imu){ 
 
-    int vel1, vel2, vel3, vel4;
+    //Executa a atualização do sinal de controle de cada um dos eixos 
+    
+    pidRoll.pidVelControl(imu);
+    pidPitch.pidVelControl(imu);
     int desiredVel1, desiredVel2, desiredVel3, desiredVel4;
-    int* actualVel = (int*) calloc(3, sizeof(int));
 
 
 
@@ -173,8 +175,6 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, Fli
     if(desiredVel4 > MAXTHROTTLE){
       desiredVel4 = MAXTHROTTLE;
     }
-
-    
 
     //Seta a nova velocidade necessária para manter a saida controlada
     setActualVel(desiredVel1, desiredVel2, desiredVel3, desiredVel4);
