@@ -3,7 +3,7 @@
 /* File description: WiFi socket connection handling implementation  */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    18dec2020                                       */
+/* Revision date:    04jan2021                                       */
 /* ***************************************************************** */
 
 #include "DroneWiFi.h"
@@ -522,13 +522,13 @@ void DroneWiFi::enable_debug(){
 }
 
 /* ************************************************************************************ */
-/* Method's name:          disable_debug                                                */ 
+/* Method's name:          disableDebug                                                */ 
 /* Description:            Disables Serial Comm Printing                                */
 /*                                                                                      */
 /* Entry parameters:       n/a                                                          */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
-void DroneWiFi::disable_debug(){
+void DroneWiFi::disableDebug(){
   debugging_enabled = 0;
 }

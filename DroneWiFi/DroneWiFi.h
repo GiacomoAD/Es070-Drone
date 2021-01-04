@@ -3,7 +3,7 @@
 /* File description: WiFi socket connection handling  header file    */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    14dec2020                                       */
+/* Revision date:    04jan2021                                       */
 /* ***************************************************************** */
  
 #ifndef DroneWiFi_h
@@ -163,14 +163,14 @@ public:
 
 
 /* ************************************************************************************ */
-/* Method's name:          disable_debug                                                */ 
+/* Method's name:          disableDebug                                                */ 
 /* Description:            Disables Serial Comm Printing                                */
 /*                                                                                      */
 /* Entry parameters:       n/a                                                          */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
- void disable_debug();
+ void disableDebug();
 
 
 private:
