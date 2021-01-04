@@ -152,14 +152,14 @@ public:
 
 
 /* ************************************************************************************ */
-/* Method's name:          enable_debug                                                 */ 
+/* Method's name:          enableDebug                                                  */ 
 /* Description:            Enables Serial Comm Printing                                 */
 /*                                                                                      */
 /* Entry parameters:       n/a                                                          */
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
- void enable_debug();
+ void enableDebug();
 
 
 /* ************************************************************************************ */
