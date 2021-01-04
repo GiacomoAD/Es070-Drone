@@ -275,7 +275,7 @@ void loop() {
     //Caso esteja na velocidade angular maxima, deve establizar com velocidade nula no eixo
         pitchVelPid.setSetPoint(0);
         rollVelPid.setSetPoint(0);
-        quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE00);
+        quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE);
         delay(5000);   
     }
 
@@ -286,14 +286,9 @@ void loop() {
         quadcopter.setActualVel(MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE,MOTORTHROTTLE);
         delay(5000);   
     } 
-    
-    /*Atualiza o sinal de saida do controle PID necessário para a velocidade em roll*/
-    rollVelPid.pidVelControl(imu);
-    /*Atualiza o sinal de saida do controle PID necessário para a velocidade em pitch*/
-    pitchVelPid.pidVelControl(imu);
 
-    /*Envia o sinal de controle para atualizar a potencia dos motores necessária para o movimento de Roll e Pitch*/
-    quadcopter.Control(rollVelPid, pitchVelPid);
+    /*Executa a rotina de controle que atualiza o sinal de cada eixo baseado nos parametros lidos da IMU*/
+    quadcopter.Control(rollVelPid, pitchVelPid, imu);
     
     /*Le a velocidade atual do drone*/
     actualVel = quadcopter.getActualVel();
