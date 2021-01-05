@@ -40,7 +40,7 @@ pidGains desiredGains;
 DroneTimer timer;
 DroneWiFi wifi;
 IMU imu;
-FlightControl pitchVelPid(1.5f, 0.0125f, 1.4f , 'p');
+FlightControl pitchVelPid(0.0f, 0.0f, 0.0f , 'p');
 ThrottleControl quadcopter;
 
 
@@ -61,7 +61,7 @@ rotVel setpoints;
 float addTrottleTemp;
 
 
-int testeEnable = 1;
+int testeEnable = 0;
 int prepare = 1;
 int testing = 0;
 
@@ -70,22 +70,21 @@ void IRAM_ATTR time_count(){
   counterControl++;
   counterWifi++;
   counterTest++;
- 
+
+  if(imu_trigger == 0){
+    imu_trigger = 1;
+    control_trigger = 1; 
+  }
 
   if(counterWifi >= TRIGGER_100MS){
     counterWifi = 0;
     wifi_trigger = 1;
   }
 
-  if(counterControl >= TRIGGER_CONTROL){
-      counterControl = 0;
-      control_trigger = 1;   
-      imu_trigger = 1;
-  }
-
   if(counterTest >= TRIGGER_1S){ 
     counterTest = 0;
     test_trigger = 1;
+    Serial.println("1 segundo");
   }
   
 }
@@ -109,9 +108,9 @@ void setup() {
   delay(10);
   timer.enableTimer();
 
+  long tempCal = micros();
   while(calibrar < 2000){
     if(imu_trigger){
-      Serial.println(calibrar);
       imu_trigger = 0;
       imu.readRawMPU();
       rawData = imu.getRawData();
@@ -124,7 +123,10 @@ void setup() {
       
       calibrar++;
     }
+    yield();
   }
+  tempCal = micros() - tempCal;
+  Serial.println(tempCal);
 
   if(calibrar < 2500){    
     imu.CalibrateGyro(calx/calibrar, caly/calibrar, calz/calibrar);
@@ -138,38 +140,6 @@ void setup() {
 }
 
 void loop() { 
-
-  //Rotina de teste de controle da velocidade
-  if(testeEnable){ 
-    //  SetPoint de VelPitch = -10 para preparar para o teste
-    if(prepare) pitchVelPid.setSetPoint(-10);
-     //  Atingiu -35 graus, SetPoint de VelPitch = 10;
-    if((imu.getRotations().Pitch >= -35 && imu.getRotations().Pitch <= -33) && testing == 0 ){
-        if(prepare){
-        //terminou de preparar para teste e vai começar a rotina de teste, garante que vai esperar 1 segundo
-          counterTest = 0;
-          test_trigger = 0;
-          prepare = 0;
-          pitchVelPid.setSetPoint(0);
-          Serial.println("\n ***********Posição incial para teste atingida********** ");
-        }
-
-        if( (prepare == 0) && (test_trigger == 1)){ 
-          pitchVelPid.setSetPoint(10);
-          test_trigger = 0;
-          testing = 1;
-          Serial.println("\n ***********Iniciando teste de controle de velocidade!********** ");
-        } 
-    }
-    //  Atingiu 35 graus, SetPoint de VelPitch = 0;
-    if(imu.getRotations().Pitch <= 35 && imu.getRotations().Pitch >= 33 ) {
-        prepare = 0;
-        testing = 0;
-        testeEnable = 0;
-        Serial.println("\n ***********Finalizando teste de controle de velocidade!********** ");
-    }
-  }
-
 
   actualVel = quadcopter.getActualVel();
   vel1 = actualVel[0];
@@ -192,9 +162,7 @@ void loop() {
       addTrottleTemp = (((float)(setpoints.throttle)/100)+1)*MOTORTHROTTLE;
       quadcopter.setThrottle(addTrottleTemp);
 
-      
-      //Só atualiza caso nao esteja em modo teste
-      if(testeEnable == 0){
+
         //Atualiza as variaveis relacionadas ao ganho do controlador de Pitch, quando o usuario insere este comando
         desiredGains.kp = wifi.getPIDGains('p').kp;
         desiredGains.ki = wifi.getPIDGains('p').ki;
@@ -203,11 +171,8 @@ void loop() {
         pitchVelPid.setKd(desiredGains.kd);
         pitchVelPid.setKi(desiredGains.ki);
 
-
-        //Atualiza o setpoint de velocidade angular de pitch
+      //Atualiza o setpoint de velocidade angular de pitch
         pitchVelPid.setSetPoint(setpoints.pitch);
-      }
-      
     }
   
   //Consulta o sinal de pwm enviado pela ultima vez aos motores
@@ -227,8 +192,13 @@ void loop() {
    
   }
 
-  if(control_trigger){ 
+//  if(imu_trigger){ 
+//    imu_trigger = 0;
+//  }
+
+  if(imu_trigger){ 
     control_trigger = 0;
+    imu_trigger = 0;
     //Atualiza os dados de inercia do drone
     imu.update();
     //Executa a rotina de controle para a velocidade de pitch
@@ -247,11 +217,10 @@ void loop() {
  
 
       //Se estiver dentro da rotina de teste, deve printar os valores de velocidade atual e de angulo
-    if(testing){ 
+
       Serial.print(imu.getPitchVel());
-      Serial.print(";");
+      Serial.print(" ");
       Serial.print(imu.getRotations().Pitch);
       Serial.print("\n");
-    }
   }
 }

@@ -135,6 +135,7 @@ unsigned char IMU::checkMPU()
 void IMU::initMPU()
 {
   Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.setClock(400000);  // Set the SCL clock speed to 400kHz
   setSleepOff();
   setGyroScale();
   setAccelScale();
@@ -432,27 +433,26 @@ void IMU::update(){
   readRawMPU();
   processMPUData();
 
-
-  /*if(_meanPos == 9){
-    _meanPos = 0;
-  }
-
-  _roll_vel[_meanPos] = _processedData.GyY;
-  _pitch_vel[_meanPos] = _processedData.GyX;
-
-  while(aux != 10){
-    auxRollVel  += _roll_vel[aux];
-    auxPitchVel += _pitch_vel[aux];
-    aux++;
-  }
-
-  _meanVel.Roll = auxRollVel/10;
-  _meanVel.Pitch = auxPitchVel/10;
-
-  _meanPos++;*/
-
   _gyroRollInput = (_gyroRollInput*0.8) + (_processedData.GyY*0.2);
   _gyroPitchInput = (_gyroPitchInput*0.8) + (_processedData.GyX*0.2);
+
+////    if(_meanPos == 49){
+////    _meanPos = 0;
+////  }
+////
+////  _roll_vel[_meanPos] = _gyroRollInput;
+////  _pitch_vel[_meanPos] = _gyroPitchInput;
+////
+////  while(aux != 50){
+////   auxRollVel  += _roll_vel[aux];
+////   auxPitchVel += _pitch_vel[aux];
+////    aux++;
+////  }
+//
+//  _meanVel.Roll = auxRollVel;
+//  _meanVel.Pitch = auxPitchVel;
+
+//  _meanPos++;
 
 }
 

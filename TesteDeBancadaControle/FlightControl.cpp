@@ -66,6 +66,7 @@ FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
     _gains.fkd = fkd; 
     _axis = Axis;
     _fimem = 0;
+    _ferrorPrevious = 0;
 
 //Set point de entrada para o controlador (Inicial = 0) 
     _setPoint = 0;

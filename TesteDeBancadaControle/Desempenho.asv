@@ -7,9 +7,7 @@ plot(t,velPitch)
 figure(2)
 plot(t,angPitch)
 
-t_zero = t(17200: 20100);
-ang_zero = angPitch(17200: 20100);
-plot(t_zero, ang_zero)
+t_zero = t(17000: 20100)
 p = polyfit(t,vq2,7);
 vel_est = polyval(p, t);
 

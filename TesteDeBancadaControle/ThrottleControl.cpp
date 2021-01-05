@@ -157,10 +157,10 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU
 
 
     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
-    desiredVel1 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
-    desiredVel2 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
-    desiredVel3 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
-    desiredVel4 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
+    desiredVel1 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() ;
+    desiredVel2 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() ;
+    desiredVel3 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() ;
+    desiredVel4 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() ;
 
     //Vamos saturar as velocidades maximas em cada motor
     if(desiredVel1 > MAXTHROTTLE){

@@ -14,7 +14,7 @@
 #include <ESP32Servo.h>
 #include <ESP32Tone.h>
 
-#define PIDMAX 200
+#define PIDMAX 400
 
 typedef struct kPID
 {

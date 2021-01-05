@@ -15,7 +15,7 @@
 #include <ESP32Servo.h>
 #include <ESP32Tone.h>
 
-#define MAXTHROTTLE 1500
+#define MAXTHROTTLE 1600
 #define MOTORTHROTTLE 1060 //sinal em que os motores começam a atuar
 #define PINMOTOR1 13
 #define PINMOTOR2 27
