@@ -135,6 +135,7 @@ unsigned char IMU::checkMPU()
 void IMU::initMPU()
 {
   Wire.begin(I2C_SDA, I2C_SCL);
+  Wire.setClock(400000);
   setSleepOff();
   setGyroScale();
   setAccelScale();
