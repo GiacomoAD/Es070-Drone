@@ -3,7 +3,7 @@
 /* File description: MPU-6050 interface implementation file          */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    02jan2021                                       */
+/* Revision date:    05jan2021                                       */
 /* ***************************************************************** */
 
 #include "IMU.h"
