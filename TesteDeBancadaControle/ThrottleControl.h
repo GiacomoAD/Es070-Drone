@@ -133,7 +133,23 @@ class ThrottleControl
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void SingleAxisVelControl(FlightControl pidRoll);
+    void SingleAxisVelPitchControl(FlightControl pidPitch);
+
+
+/* ******************************************************************************** */
+/* Nome do metodo:         SingleAxisVelControl                                     */
+/* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
+/*                         de modo a contrlar apenas um eixo de movimento           */
+/*                                                                                  */
+/* Parametros de entrada: FlightControl pidRoll que é objeto do eixo roll de        */
+/*                        controle            ,                                     */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  Vazio (Nenhum)                                             */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */  
+    void SingleAxisVelRollControl(FlightControl pidRoll);
 
 /* ******************************************************************************** */
 /* Nome do metodo:         getThrottle                                              */
