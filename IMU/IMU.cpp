@@ -298,7 +298,7 @@ processedMpu IMU::processMPUData(){
   sensibilidade do acelerometro*/
   _processedData.AcX = (float)(_rawData.AcX - calAcX)/16384;
   _processedData.AcY = (float)(_rawData.AcY- calAcY)/16384;
-  _processedData.AcZ = (float)_rawData.AcZ/16384;
+  _processedData.AcZ = (float)(_rawData.AcZ)/16384;
 
   /*Utilizando as informacoes de velocidade angular e aceleracao
   para calcular a posicao angular*/
@@ -457,6 +457,7 @@ void IMU::update(){
 
   _gyroRollInput = (_gyroRollInput*0.8) + (_processedData.GyY*0.2);
   _gyroPitchInput = (_gyroPitchInput*0.8) + (_processedData.GyX*0.2);
+  _gyroYawInput = (_gyroYawInput*0.8) + (_processedData.GyZ*0.2);
 
 }
 
@@ -485,6 +486,21 @@ float IMU::getRollVel(){
   return _gyroRollInput;
 
 }
+
+/* ************************************************************************************ */
+/* Method's name:          getYawVel                                                    */ 
+/* Description:            Returns gyro yaw velocity after complementary filter         */
+/*                                                                                      */
+/* Entry parameters:       n/a                                                          */
+/*                                                                                      */
+/* Return parameters:      float -> Yaw velocity                                        */
+/* ************************************************************************************ */
+float IMU::getYawVel(){
+  return _gyroYawInput;
+
+}
+
+
 
 /* ************************************************************************************ */
 /* Method's name:          getData                                                      */ 
