@@ -3,7 +3,7 @@
 /* File description: MPU-6050 interface implementation file          */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    05jan2021                                       */
+/* Revision date:    06jan2021                                       */
 /* ***************************************************************** */
 
 #include "IMU.h"
@@ -590,7 +590,7 @@ void IMU::disableDebug(){
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
- void disableYawComp(){
+ void IMU::disableYawComp(){
    yaw_compensation = 0;
  }
 
@@ -603,6 +603,6 @@ void IMU::disableDebug(){
 /*                                                                                      */
 /* Return parameters:      n/a                                                          */
 /* ************************************************************************************ */
- void enableYawComp(){
+ void IMU::enableYawComp(){
    yaw_compensation = 1;
  }
