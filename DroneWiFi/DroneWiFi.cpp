@@ -3,7 +3,7 @@
 /* File description: WiFi socket connection handling implementation  */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    04jan2021                                       */
+/* Revision date:    07jan2021                                       */
 /* ***************************************************************** */
 
 #include "DroneWiFi.h"
@@ -233,7 +233,7 @@ void DroneWiFi::processComm(String msg)
   unsigned char j = 0;
   unsigned char k_flag = 1;
   char ch;
-  char buffer_k[5];
+  char buffer_k[10];
   
   /*Se o Joystick esta habilitado, a maquina de estados eh diferente*/
   if(joystick_enabled){
