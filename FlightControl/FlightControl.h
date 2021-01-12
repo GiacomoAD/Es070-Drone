@@ -2,7 +2,7 @@
  * Descrição: Arquivo header das funções responsáveis 
  * pelo controle de voo do drone. 
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
- * Ultima Atualização: 30/12/2020
+ * Ultima Atualização: 6/01/2021
 *****************************************************/
 #ifndef FlightControl_h
 #define FlightControl_h

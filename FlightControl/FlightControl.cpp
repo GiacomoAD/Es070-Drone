@@ -1,7 +1,7 @@
 /*******************************************************************
  * Descrição: Arquivo c++ que implementa o controlador de voo do drone.
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo
- * Ultima Atualização: 30/12/2020
+ * Ultima Atualização: 6/01/2021
 ********************************************************************/
 #include "FlightControl.h"
 #include "ThrottleControl.h"
