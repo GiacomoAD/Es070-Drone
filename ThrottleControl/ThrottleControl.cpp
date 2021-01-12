@@ -146,21 +146,22 @@ void ThrottleControl:: testMotors(){
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU imu){ 
+void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch,FlightControl pidYaw, float rollVel, float pitchVel, float yawVel){ 
 
     //Executa a atualização do sinal de controle de cada um dos eixos 
     
-    pidRoll.pidVelControl(imu);
-    pidPitch.pidVelControl(imu);
+    pidRoll.pidVelControl(rollVel);
+    pidPitch.pidVelControl(pitchVel);
+    pidYaw.pidVelControl(yawVel);
     int desiredVel1, desiredVel2, desiredVel3, desiredVel4;
 
 
 
     //Calcula as compensações em cada motor para manter o controle de cada um dos eixos de movimentação
-    desiredVel1 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
-    desiredVel2 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
-    desiredVel3 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
-    desiredVel4 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
+    desiredVel1 = _throttle - pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
+    desiredVel2 = _throttle - pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated() ;
+    desiredVel3 = (_throttle +30) + pidPitch.getPID_Calculated() - pidRoll.getPID_Calculated() + pidYaw.getPID_Calculated();
+    desiredVel4 = _throttle + pidPitch.getPID_Calculated() + pidRoll.getPID_Calculated() - pidYaw.getPID_Calculated();
 
     //Vamos saturar as velocidades maximas em cada motor
     if(desiredVel1 > MAXTHROTTLE){
@@ -186,7 +187,7 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU
 /* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
 /*                         de modo a contrlar apenas um eixo de movimento           */
 /*                                                                                  */
-/* Parametros de entrada: FlightControl pidRoll que é objeto do eixo roll de        */
+/* Parametros de entrada: FlightControl pidPitch que é objeto do eixo pitch de      */
 /*                        controle            ,                                     */
 /*                                                                                  */
 /*                                                                                  */
@@ -195,7 +196,7 @@ void ThrottleControl::Control(FlightControl pidRoll, FlightControl pidPitch, IMU
 /*                                                                                  */
 /* ******************************************************************************** */
 
-void ThrottleControl::SingleAxisVelControl(FlightControl pidPitch){ 
+void ThrottleControl::SingleAxisVelPitchControl(FlightControl pidPitch){ 
     int desiredVel1, desiredVel2;
 
 
@@ -215,6 +216,46 @@ void ThrottleControl::SingleAxisVelControl(FlightControl pidPitch){
     //Seta a nova velocidade necessária para manter a saida controlada
     setActualVel(desiredVel1, desiredVel2 ,1000, 1000 );
 }
+
+
+/* ******************************************************************************** */
+/* Nome do metodo:         SingleAxisVelControl                                     */
+/* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
+/*                         de modo a contrlar apenas um eixo de movimento           */
+/*                                                                                  */
+/* Parametros de entrada: FlightControl pidRoll que é objeto do eixo roll de        */
+/*                        controle            ,                                     */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  Vazio (Nenhum)                                             */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */
+
+void ThrottleControl::SingleAxisVelRollControl(FlightControl pidRoll){ 
+    int desiredVel1, desiredVel2;
+
+
+     //Calcula as compensações em cada motor para manter o controle de apenas um dos eixos de movimentação (Roll)
+    desiredVel1 = _throttle  - pidRoll.getPID_Calculated() ;
+    desiredVel2 = _throttle  + pidRoll.getPID_Calculated() ;
+
+    //Vamos saturar as velocidades maximas em cada motor
+    if(desiredVel1 > MAXTHROTTLE){
+      desiredVel1 = MAXTHROTTLE;
+    }
+    if(desiredVel2 > MAXTHROTTLE){
+      desiredVel2 = MAXTHROTTLE;
+    }
+
+
+    //Seta a nova velocidade necessária para manter a saida controlada
+    setActualVel(desiredVel1, desiredVel2 ,1000, 1000 );
+}
+
+
+
+
 
 /* ******************************************************************************** */
 /* Nome do metodo:         getThrottle                                              */

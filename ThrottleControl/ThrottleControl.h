@@ -15,7 +15,7 @@
 #include <ESP32Servo.h>
 #include <ESP32Tone.h>
 
-#define MAXTHROTTLE 1500
+#define MAXTHROTTLE 1600
 #define MOTORTHROTTLE 1060 //sinal em que os motores começam a atuar
 #define PINMOTOR1 13
 #define PINMOTOR2 27
@@ -118,7 +118,7 @@ class ThrottleControl
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void Control(FlightControl pidRoll, FlightControl pidPitch, IMU imu);
+    void Control(FlightControl pidRoll, FlightControl pidPitch,FlightControl pidYaw, float rollVel, float pitchVel, float yawVel);
 
 /* ******************************************************************************** */
 /* Nome do metodo:         SingleAxisVelControl                                     */
@@ -133,7 +133,23 @@ class ThrottleControl
 /*                                                                                  */
 /*                                                                                  */
 /* ******************************************************************************** */    
-    void SingleAxisVelControl(FlightControl pidRoll);
+    void SingleAxisVelPitchControl(FlightControl pidPitch);
+
+
+/* ******************************************************************************** */
+/* Nome do metodo:         SingleAxisVelControl                                     */
+/* Descrição:              Distribui  a velocidade controlada para os 2 motores     */
+/*                         de modo a contrlar apenas um eixo de movimento           */
+/*                                                                                  */
+/* Parametros de entrada: FlightControl pidRoll que é objeto do eixo roll de        */
+/*                        controle            ,                                     */
+/*                                                                                  */
+/*                                                                                  */
+/* Parametros de saida:  Vazio (Nenhum)                                             */
+/*                                                                                  */
+/*                                                                                  */
+/* ******************************************************************************** */  
+    void SingleAxisVelRollControl(FlightControl pidRoll);
 
 /* ******************************************************************************** */
 /* Nome do metodo:         getThrottle                                              */
