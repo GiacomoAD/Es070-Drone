@@ -354,7 +354,7 @@ def main(stdscr):
                             svInput.addstr(3,0,"JOYSTICK DESABILITADO", curses.color_pair(3)|curses.A_BOLD)
                             svInput.addstr(4,0,"\t´#J´ = HABILITAR JOYSTICK", curses.color_pair(1))
                             svInput.addstr(5,0,"\t´#SGaxis;kp;ki;kd´ = SETAR GANHO CONTROLADOR POR EIXO", curses.color_pair(2))
-                            svInput.addstr(6,0,"\t´SVxxxx;xxxx;xxxx;xxxx´ = SETAR THROTTLE", curses.color_pair(1))
+                            svInput.addstr(6,0,"\t´STxxxx;xxxx;xxxx;xxxx´ = SETAR THROTTLE", curses.color_pair(1))
                             svInput.addstr(7,0,"\t´#R´ = RESETAR MOTORES PARA VELOCIDADE BASE", curses.color_pair(2))
                             svInput.refresh()
                             curses.nocbreak()
