@@ -1,9 +1,9 @@
 /*****************************************************************************\
- * Descrição: Main para testes em bancada de calibração do controlador PID   *
+ * Descrição: Main para teste final e calibração do controlador PID          *
  * do Drone                                                                  *
  * Autores: Gustavo L. Fernandes e Giácomo A. Dollevedo                      *  
  * Data de Criacao:     03jan2021                                            *
- * Ultima Atualização:  03jan2021                                            *
+ * Ultima Atualização:  07jan2021                                            *
 ******************************************************************************/
 
 #include "DroneWiFi.h"
