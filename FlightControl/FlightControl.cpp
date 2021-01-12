@@ -66,6 +66,7 @@ FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
     _gains.fkd = fkd; 
     _axis = Axis;
     _fimem = 0;
+    _ferrorPrevious = 0;
 
 //Set point de entrada para o controlador (Inicial = 0) 
     _setPoint = 0;
@@ -73,19 +74,19 @@ FlightControl::FlightControl(float fkp, float fki, float fkd, char Axis)
 
 
 /* ******************************************************************************** */
-/* Nome do metodo:          pidControl                                              */
-/* Descrição:                - Rotina de Controle para um determinado eixo          */
+/* Nome do metodo:          pidVelControl                                           */
+/* Descrição:                - Rotina de Controle de velocidade                     */
+/*                          para um determinado eixo                                */
 /*                                                                                  */
 /*                                                                                  */
-/* Parametros de entrada: (IMU imu) Objeto que contem os valores lidos da IMU       */
-/*                        que será dado como entrada pro controlador                */
+/* Parametros de entrada: (float axisVel) variavel que contem os valores medidos    */
+/*  de velocidade lidos da IMU que será dado como entrada pro controlador           */
 /* Parametros de saida: Nenhum (Vazio)                                              */
 /*                                                                                  */
 /*                                                                                  */
-/* ******************************************************************************** */
 
 
-void FlightControl::pidControl(processedMpu imu)
+void FlightControl::pidVelControl(float axisVel)
 {
 //YAW = Z
 //ROLL = Y
@@ -94,19 +95,7 @@ void FlightControl::pidControl(processedMpu imu)
     float fgyro; 
 
 //Testa qual eixo o objeto foi relacionado para coletar a informação adequada da IMU
-    switch (_axis)
-    {
-    case 'r':
-        fgyro = imu.GyY;
-        break;
-    case 'p':
-        fgyro = imu.GyX;
-        break;
-    case 'y':
-        fgyro = imu.GyZ;
-    default:
-        break;
-    }
+        fgyro = axisVel;
 
     
 //Erro instantaneo e acumulado 
