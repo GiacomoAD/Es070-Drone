@@ -3,7 +3,7 @@
 /* File description: MPU-6050 interface header file                  */
 /* Author name:      Giacomo Dollevedo, Gustavo Fernandes            */
 /* Creation date:    18nov2020                                       */
-/* Revision date:    02jan2021                                       */
+/* Revision date:    12jan2021                                       */
 /* ***************************************************************** */
 
  
@@ -380,8 +380,7 @@ private:
   float calAcX = 0;
   float calAcY = 0;
 
-  float _gyroRoll = 0;
-  float _gyroPitch = 0;
+
   float _gyroRollInput = 0;
   float _gyroPitchInput = 0;
   float _gyroYawInput = 0;
@@ -396,12 +395,15 @@ private:
   unsigned char yaw_compensation = 1;
   unsigned char debbuging_enabled = 1;
 
+  /*NAO UTILIZADO*/
+  float _gyroRoll = 0;
+  float _gyroPitch = 0;
   unsigned char _meanPos = 0;
   float _roll_vel[50] = {0};
   float _pitch_vel[50] = {0};
 
   gyroVel _meanVel;
-
+  /*FIM NAO UTILIZADO*/
 };
  
 #endif
