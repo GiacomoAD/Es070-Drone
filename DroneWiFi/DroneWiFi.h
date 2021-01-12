@@ -193,7 +193,15 @@ private:
   pidGains _pidPitch;
   pidGains _pidYaw;
   
-
+/* ************************************************************************************ */
+/* Method's name:          connectWifi                                                  */ 
+/* Description:            Attempts wifi network connection                             */
+/*                                                                                      */
+/* Entry parameters:       char* ssid -> Network SSID (name)                            */
+/*                         char* pass -> Network password                               */
+/*                                                                                      */
+/* Return parameters:      unsigned char -> 0 == failed to connect / 1 == success       */
+/* ************************************************************************************ */
   unsigned char connectWifi(char* ssid, char* pass);
 
 /* ************************************************************************************ */
